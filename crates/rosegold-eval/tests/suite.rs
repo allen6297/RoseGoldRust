@@ -241,7 +241,11 @@ fn main(): Int {
     block.register("rosegold", "rose_block");
     block.texture("rosegold:rose_block", "assets/terralite/textures/wool.png");
     block.model("rosegold:rose_block", "cube");
+    block.hardness("rosegold:rose_block", 2.5);
+    block.light("rosegold:rose_block", 12);
     item.register("rosegold", "rose");
+    item.places("rosegold:rose", "rosegold:rose_block");
+    item.stack("rosegold:rose", 16);
     recipe.register("rosegold:rose_block", "rosegold:rose");
     recipe.shapeless("rosegold:bouquet", "rosegold:rose+rosegold:rose");
     recipe.shaped("rosegold:rose_post", "rosegold:rose,,,rosegold:rose,,,rosegold:rose,,");
@@ -258,6 +262,18 @@ fn main(): Int {
         .any(|(kind, id, value)| kind == "model"
             && id == "rosegold:rose_block"
             && value == "cube"));
+    assert!(session.attachments().iter().any(|(kind, id, value)| {
+        kind == "hardness" && id == "rosegold:rose_block" && value.starts_with("2.5")
+    }));
+    assert!(session.attachments().iter().any(|(kind, id, value)| {
+        kind == "light" && id == "rosegold:rose_block" && value == "12"
+    }));
+    assert!(session.attachments().iter().any(|(kind, id, value)| {
+        kind == "places" && id == "rosegold:rose" && value == "rosegold:rose_block"
+    }));
+    assert!(session.attachments().iter().any(|(kind, id, value)| {
+        kind == "stack" && id == "rosegold:rose" && value == "16"
+    }));
     assert!(session
         .attachments()
         .iter()

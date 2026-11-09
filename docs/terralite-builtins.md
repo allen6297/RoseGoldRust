@@ -82,8 +82,11 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 | `block.register(namespace, path)` | Adds `namespace:path` to the pack. Returns that id. Duplicate id fails |
 | `item.register(namespace, path)` | Same for an item. A script item is not a block |
 | `block.texture(id, path)` | Pack PNG, or another block's texture |
-| `block.model(id, model)` | Pack shape or model. Default is `cube` |
+| `block.model(id, model)` | Pack shape, pack model, or a mod file. Prefer `assets/<ns>/models/block/<id>.json` / `.bbmodel`. Default is `cube` |
+| `block.hardness(id, seconds)` | Seconds to break. Positive float. Same script can set it again |
+| `block.light(id, level)` | Emit light `1..=15` (warm orange). Same script can set it again |
 | `item.places(item, block)` | That item places that block from the hotbar |
+| `item.stack(id, count)` | Hotbar stack limit `1..=64`. Default is 64. `item.max_count` reads it |
 | `recipe.register(result, ingredient)` | One crafting line. Both ids must already exist |
 | `recipe.shapeless(result, ingredients)` | A pile, ids joined with `+`. Order on the grid does not matter |
 | `recipe.shaped(result, grid)` | Nine cells separated by commas, left to right, top to bottom. An empty cell is blank. The shape can sit anywhere on the 3×3 |
@@ -94,6 +97,9 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 - `TLMod.log` calls `modapi.note`. The game prints `rosegold: {message}`.
 - `TLRegistry.open` calls `modapi.registry`. The game stores `("registry", kind)` and does nothing else with it.
 - `Register.BLOCK.register` and `Register.ITEM.register` are `block.register` and `item.register`.
+- `Register.texture` / `model` / `hardness` / `light` / `places` / `stack` / `recipe` forward to the block and item calls above.
+- `ModAPI.defineBlock(namespace, path, model, texture, seconds, glow)` registers a block and applies those fields when non-empty / positive.
+- `ModAPI.defineItem(namespace, path, places, count)` registers an item, optionally places a block, and optionally sets stack size (`count` 0 keeps 64).
 - Any other kind calls `modapi.content(kind, namespace, path)`. The kind must be uppercase (`BLOCK_ENTITY`, `SCREEN`, `COMMAND`, …). The namespace and path must be lowercase.
 
 Of those stored entries, the game uses two:
@@ -134,6 +140,7 @@ Std children only the Rust tree has: `std.collections`, `std.helpers`, `std.ModA
 | `mods/field-notes.rg` | `hooks.break_speed`, `hooks.on_select`, `hooks.after_break`, `world.slot`, `world.count`, `world.block`, `world.write` |
 | `mods/red-wool.rg` | `events.placed`, `events.break_drop`, `events.pickup_item`, `world.get_block`, `world.get_meta`, `world.set_meta`, `player.held`, `world.has_time`, `world.is_day`, `world.season`, `player.present`, `player.x`, `item.exists`, `item.max_count` |
 | `mods/rose-kit.rg` | `import helpers`, `block.register`, `block.texture`, `block.model`, `item.register`, `item.places`, `recipe.register`, `recipe.shapeless`, `recipe.shaped`, `entity.register`, `events.placed`, `events.entity_spawn`, `events.entity_hurt`, `events.entity_tick`, `world.set_block` |
+| `mods/ember.rg` | `import ModAPI`, `defineBlock` / `defineItem`, per-block model under `mods/ember/assets/ember/models/block/`, hardness, light, stack size, place-as-block |
 | `mods/k's-guide/src/mod.rg` | `import ModAPI`, `on_init`, registries for item, block, entity, block entity, item group, screen, event, command, config, resource, texture, particle |
 
 ## Compared with Java
@@ -170,8 +177,8 @@ What the game does that a bare `rg run` does not:
 1. `hooks.before_place` is always called as `(item, x, y, z)`. Only `hooks.before_break` is one argument. The world crate's module comment lists the two side by side and does not say that. A one-argument place function fails at the call. `hooks.before_place` and `events.place_block` are the same list.
 2. Server break, place, and spawn hooks cannot see the player or the sky. `red-wool.rg` reads `world.has_time`, `player.present`, and `player.x` from a pickup hook, which is a client hook, so that one can see them. The same reads from `before_break` would be false and zero.
 3. Hurt and tick cannot write the world. Spawn can. The comments that say hurt and tick are never called are wrong. The client and the server call both.
-4. `item.max_count` is 64 for every existing item. There is no per-item stack size.
-5. `item.hardness`, `item.light`, and `item.replaces` read the block table at metadata 0. An item that is not a block looks missing.
+4. `item.stack` sets a per-item hotbar limit. `item.max_count` reads that value (default 64).
+5. `item.hardness`, `item.light`, and `item.replaces` read the block table at metadata 0. An item that is not a block looks missing. Script `block.hardness` / `block.light` feed that table for registered blocks.
 6. The Fabric-style registries in `k's-guide` mostly record names. Entities, item groups, events, config, resources, and the `TEXTURE` registry do not create game objects. Block entities are a list of ids. Screens are a list of ids. Commands are labels. Particles are a color.
 7. The hotbar a hook sees is the last synced client hotbar, five slots in the current client, indexed from 1. There is no armor, offhand, or full inventory.
 8. Java cannot load these mods. The game hosts and `ModAPI` / `helpers` exist only in the Rust interpreter.

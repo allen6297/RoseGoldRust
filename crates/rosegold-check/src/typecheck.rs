@@ -2027,14 +2027,16 @@ impl<'a> TypeChecker<'a> {
                 _ => miss(self),
             },
             "item" => match name {
-                "register" | "places" => self.check_arity(&label, 2, n, line, col),
+                "register" | "places" | "stack" => self.check_arity(&label, 2, n, line, col),
                 "exists" | "hardness" | "light" | "replaces" | "max_count" => {
                     self.check_arity(&label, 1, n, line, col)
                 }
                 _ => miss(self),
             },
             "block" => match name {
-                "register" | "texture" | "model" => self.check_arity(&label, 2, n, line, col),
+                "register" | "texture" | "model" | "hardness" | "light" => {
+                    self.check_arity(&label, 2, n, line, col)
+                }
                 _ => miss(self),
             },
             "entity" => match name {
@@ -4149,13 +4151,13 @@ fn host_return(module: &str, name: &str) -> String {
         "item" => match name {
             "hardness" => "Float".into(),
             "light" | "max_count" => "Int".into(),
-            "exists" | "places" => "Bool".into(),
+            "exists" | "places" | "stack" => "Bool".into(),
             "register" | "replaces" => "String".into(),
             _ => "Void".into(),
         },
         "block" => match name {
             "register" => "String".into(),
-            "texture" | "model" => "Bool".into(),
+            "texture" | "model" | "hardness" | "light" => "Bool".into(),
             _ => "Void".into(),
         },
         "entity" => match name {

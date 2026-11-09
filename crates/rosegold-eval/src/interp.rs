@@ -164,7 +164,8 @@ impl Session {
         self.interp.registrations.clone()
     }
 
-    /// `(kind, id, value)` for `block.texture`, `block.model`, and `item.places`.
+    /// `(kind, id, value)` for `block.texture` / `model` / `hardness` / `light`,
+    /// `item.places` / `stack`, and recipe lines.
     pub fn attachments(&self) -> Vec<(String, String, String)> {
         self.interp.attachments.clone()
     }
@@ -341,7 +342,7 @@ pub struct Interp {
     game_hooks: Vec<GameHook>,
     /// `block.register` and `item.register` calls from `main`, as `(kind, namespace, path)`.
     registrations: Vec<(String, String, String)>,
-    /// `block.texture` / `block.model` / `item.places`, as `(kind, id, value)`.
+    /// `block.texture` / `model` / `hardness` / `light`, `item.places` / `stack`, recipes.
     attachments: Vec<(String, String, String)>,
     /// Bodies placed by `entity.spawn` and not yet removed by `entity.despawn`.
     spawns: Vec<(String, i32, i32, i32)>,
@@ -2240,7 +2241,7 @@ impl Interp {
         if module == "block"
             || module == "recipe"
             || module == "entity"
-            || (module == "item" && (name == "register" || name == "places"))
+            || (module == "item" && (name == "register" || name == "places" || name == "stack"))
         {
             return self.call_registry(module, name, args, line, col);
         }
@@ -3058,6 +3059,15 @@ impl Interp {
         if module == "entity" && (name == "spawn" || name == "despawn") {
             return self.entity_body(name, args, line, col);
         }
+        if module == "block" && name == "hardness" {
+            return self.attach_number(module, name, &args, line, col);
+        }
+        if module == "block" && name == "light" {
+            return self.attach_number(module, name, &args, line, col);
+        }
+        if module == "item" && name == "stack" {
+            return self.attach_number(module, name, &args, line, col);
+        }
         if args.len() != 2 {
             return Err(self.runtime(&format!("{module}.{name} takes 2 arguments"), line, col));
         }
@@ -3095,6 +3105,72 @@ impl Interp {
             return Ok(Value::Bool(true));
         }
         Err(self.runtime(&format!("unknown function {module}.{name}"), line, col))
+    }
+
+    /// `block.hardness`, `block.light`, and `item.stack` store a number as text.
+    fn attach_number(
+        &mut self,
+        module: &str,
+        name: &str,
+        args: &[Value],
+        line: u32,
+        col: u32,
+    ) -> Result<Value, Halt> {
+        if args.len() != 2 {
+            return Err(self.runtime(&format!("{module}.{name} takes 2 arguments"), line, col));
+        }
+        let Value::String(id) = &args[0] else {
+            return Err(self.runtime(
+                &format!("{module}.{name} expects String, number"),
+                line,
+                col,
+            ));
+        };
+        if !args[1].is_numeric() {
+            return Err(self.runtime(
+                &format!("{module}.{name} expects String, number"),
+                line,
+                col,
+            ));
+        }
+        let value = args[1].as_f64();
+        if !value.is_finite() {
+            return Err(self.runtime(
+                &format!("{module}.{name} expects a finite number"),
+                line,
+                col,
+            ));
+        }
+        let encoded = if name == "hardness" {
+            if value <= 0.0 {
+                return Err(self.runtime(
+                    "block.hardness expects a positive number of seconds",
+                    line,
+                    col,
+                ));
+            }
+            format!("{value}")
+        } else {
+            let n = value.round() as i64;
+            if name == "light" && !(1..=15).contains(&n) {
+                return Err(self.runtime(
+                    "block.light expects a level from 1 to 15",
+                    line,
+                    col,
+                ));
+            }
+            if name == "stack" && !(1..=64).contains(&n) {
+                return Err(self.runtime(
+                    "item.stack expects a count from 1 to 64",
+                    line,
+                    col,
+                ));
+            }
+            n.to_string()
+        };
+        self.attachments
+            .push((name.to_string(), id.clone(), encoded));
+        Ok(Value::Bool(true))
     }
 
     /// `entity.spawn` and `entity.despawn` are `fn(id, x, y, z): Bool`.
