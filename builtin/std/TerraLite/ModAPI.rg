@@ -99,3 +99,12 @@ fn createRegister(owner: TLMod): TLRegister {
         PARTICLE: registry("PARTICLE"),
     };
 }
+
+// Stubs for later entity-style block/item behavior. Nothing implements them yet.
+trait Tickable {
+    fn tick(delta: Float);
+}
+
+trait Interactable {
+    fn interact(player: String, hand: String);
+}

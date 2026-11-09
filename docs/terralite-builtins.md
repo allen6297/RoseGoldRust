@@ -98,8 +98,9 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 - `TLRegistry.open` calls `modapi.registry`. The game stores `("registry", kind)` and does nothing else with it.
 - `Register.BLOCK.register` and `Register.ITEM.register` are `block.register` and `item.register`.
 - `Register.texture` / `model` / `hardness` / `light` / `places` / `stack` / `recipe` forward to the block and item calls above.
-- `import Blocks` resolves to `builtin/std/TerraLite/Blocks.rg`. `Blocks.defineBlock(namespace, path, model, texture, seconds, glow)` registers a block and applies those fields when non-empty / positive. Also `Blocks.texture` / `model` / `hardness` / `light`.
-- `import Items` resolves to `builtin/std/TerraLite/Items.rg`. `Items.defineItem(namespace, path, places, count)` registers an item, optionally places a block, and optionally sets stack size (`count` 0 keeps 64). Also `Items.places` / `stack`.
+- `import Blocks` resolves to `builtin/std/TerraLite/Blocks.rg`. `Blocks.defineBlock(namespace, path, model, texture, seconds, glow)` registers a block, applies those fields when non-empty / positive, and returns a `Block` with a filled `BlockProperties` bag (`.id` is the registered id). Also `Blocks.texture` / `model` / `hardness` / `light`.
+- `import Items` resolves to `builtin/std/TerraLite/Items.rg`. `Items.defineItem(namespace, path, places, count)` registers an item, optionally places a block, optionally sets stack size (`count` 0 keeps 64), and returns an `Item` with a filled `ItemProperties` bag (`.id` is the registered id). Free `Items.places` / `stack` still forward to the host. An `Item` also has `.places(target)` / `.stack(count)` methods that update its properties and call the host with that item's id.
+- `Tickable` / `Interactable` on ModAPI are empty trait stubs for later entity-style hooks.
 - Any other kind calls `modapi.content(kind, namespace, path)`. The kind must be uppercase (`BLOCK_ENTITY`, `SCREEN`, `COMMAND`, …). The namespace and path must be lowercase.
 
 Of those stored entries, the game uses two:
