@@ -1,0 +1,163 @@
+{
+  "scopeName": "source.rosegold",
+  "name": "RoseGold",
+  "patterns": [
+    { "include": "#block-comment" },
+    { "include": "#line-comment" },
+    { "include": "#fstring" },
+    { "include": "#string" },
+    { "include": "#annotation" },
+    { "include": "#function" },
+    { "include": "#type-decl" },
+    { "include": "#keyword" },
+    { "include": "#constant" },
+    { "include": "#self" },
+    { "include": "#builtin-type" },
+    { "include": "#terralite-call" },
+    { "include": "#terralite-module" },
+    { "include": "#number" }
+  ],
+  "repository": {
+    "block-comment": {
+      "name": "comment.block.rosegold",
+      "begin": "/#",
+      "end": "#/"
+    },
+    "line-comment": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.rosegold",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.line.hash.rosegold",
+          "match": "#.*$"
+        }
+      ]
+    },
+    "string": {
+      "name": "string.quoted.double.rosegold",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.rosegold",
+          "match": "\\\\(x[0-9A-Fa-f]{2}|.)"
+        }
+      ]
+    },
+    "fstring": {
+      "name": "string.interpolated.rosegold",
+      "begin": "\\bf\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.rosegold",
+          "match": "\\\\(x[0-9A-Fa-f]{2}|.)"
+        },
+        {
+          "match": "\\{\\{",
+          "name": "constant.character.escape.rosegold"
+        },
+        {
+          "match": "\\}\\}",
+          "name": "constant.character.escape.rosegold"
+        },
+        {
+          "begin": "\\{",
+          "end": "\\}",
+          "beginCaptures": { "0": { "name": "punctuation.definition.interpolation.begin.rosegold" } },
+          "endCaptures": { "0": { "name": "punctuation.definition.interpolation.end.rosegold" } },
+          "patterns": [{ "include": "source.rosegold" }]
+        }
+      ]
+    },
+    "annotation": {
+      "name": "storage.modifier.annotation.rosegold",
+      "match": "@[A-Za-z_][A-Za-z0-9_]*"
+    },
+    "function": {
+      "match": "\\b(fn)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": { "name": "keyword.other.fn.rosegold" },
+        "2": { "name": "entity.name.function.rosegold" }
+      }
+    },
+    "type-decl": {
+      "match": "\\b(class|struct|data|enum|trait|mod|impl)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": { "name": "keyword.other.declaration.rosegold" },
+        "2": { "name": "entity.name.type.rosegold" }
+      }
+    },
+    "keyword": {
+      "name": "keyword.control.rosegold",
+      "match": "\\b(fn|import|from|as|is|pub|abstract|final|static|private|protected|mod|class|trait|extends|for|in|super|enum|match|switch|var|const|export|struct|data|impl|signal|return|pass|break|continue|if|elif|else|while|try|do|throws|throw|catch|async|await|spawn)\\b"
+    },
+    "constant": {
+      "name": "constant.language.rosegold",
+      "match": "\\b(true|false|null)\\b"
+    },
+    "self": {
+      "name": "variable.language.self.rosegold",
+      "match": "\\bself\\b"
+    },
+    "builtin-type": {
+      "name": "support.type.rosegold",
+      "match": "\\b(Int|Float|String|Bool|Void|Array|Map|Range|UUID|Vec2|Vec3|Window|Color)\\b"
+    },
+    "terralite-call": {
+      "match": "\\b(hooks)\\.(before_break|before_place|after_break|after_place|on_select|on_screen|break_speed)\\b|\\b(events)\\.(break_block|place_block|broken|placed|select_slot|open_screen|break_speed|pickup_item|break_drop|entity_spawn|entity_hurt|entity_tick)\\b|\\b(world)\\.(block|get_block|is_air|get_meta|set_meta|write|set_block|hardness|light|replaces|slot|count|time_of_day|is_day|season|has_time)\\b|\\b(player)\\.(stack|count|held|selected|present|x|y|z)\\b|\\b(item)\\.(register|places|exists|hardness|light|replaces|max_count)\\b|\\b(block)\\.(register|texture|model)\\b|\\b(recipe)\\.(register|shapeless|shaped)\\b|\\b(entity)\\.(register)\\b|\\b(modapi)\\.(note|registry|content)\\b|\\b(helpers)\\.(id|same_id|holding|block_at|air|replace_block|stack_at_least)\\b|\\b(TLModAPI)\\.(createMod|createRegister)\\b|\\b(TLMod)\\.(log)\\b|\\b(TLRegistry)\\.(open|register)\\b|\\b(TLRegister)\\.(texture|model|places|recipe|ITEM|BLOCK|ENTITY|BLOCK_ENTITY|ITEM_GROUP|SCREEN|EVENT|COMMAND|CONFIG|RESOURCE|TEXTURE|PARTICLE)\\b|\\b(GUIAPI)\\.(vec|color_bits|text|at_rest|createScreen|addElement|removeElement|on_press|say|Vec2|TextElement|Element|Screen)\\b|\\b(SettingsAPI)\\.(createCategory|createOption|choices|on_change|value|SettingsCategory|SettingsOption|Settings)\\b",
+      "captures": {
+        "1": { "name": "support.class.terralite.rosegold" },
+        "2": { "name": "support.function.terralite.rosegold" },
+        "3": { "name": "support.class.terralite.rosegold" },
+        "4": { "name": "support.function.terralite.rosegold" },
+        "5": { "name": "support.class.terralite.rosegold" },
+        "6": { "name": "support.function.terralite.rosegold" },
+        "7": { "name": "support.class.terralite.rosegold" },
+        "8": { "name": "support.function.terralite.rosegold" },
+        "9": { "name": "support.class.terralite.rosegold" },
+        "10": { "name": "support.function.terralite.rosegold" },
+        "11": { "name": "support.class.terralite.rosegold" },
+        "12": { "name": "support.function.terralite.rosegold" },
+        "13": { "name": "support.class.terralite.rosegold" },
+        "14": { "name": "support.function.terralite.rosegold" },
+        "15": { "name": "support.class.terralite.rosegold" },
+        "16": { "name": "support.function.terralite.rosegold" },
+        "17": { "name": "support.class.terralite.rosegold" },
+        "18": { "name": "support.function.terralite.rosegold" },
+        "19": { "name": "support.class.terralite.rosegold" },
+        "20": { "name": "support.function.terralite.rosegold" },
+        "21": { "name": "support.class.terralite.rosegold" },
+        "22": { "name": "support.function.terralite.rosegold" },
+        "23": { "name": "support.class.terralite.rosegold" },
+        "24": { "name": "support.function.terralite.rosegold" },
+        "25": { "name": "support.class.terralite.rosegold" },
+        "26": { "name": "support.function.terralite.rosegold" },
+        "27": { "name": "support.class.terralite.rosegold" },
+        "28": { "name": "support.function.terralite.rosegold" },
+        "29": { "name": "support.class.terralite.rosegold" },
+        "30": { "name": "support.function.terralite.rosegold" },
+        "31": { "name": "support.class.terralite.rosegold" },
+        "32": { "name": "support.function.terralite.rosegold" }
+      }
+    },
+    "terralite-module": {
+      "name": "support.class.terralite.rosegold",
+      "match": "\\b(hooks|events|world|player|modapi|helpers|TLModAPI|TLMod|TLRegistry|TLRegister|GUIAPI|SettingsAPI)\\b"
+    },
+    "number": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.rosegold",
+          "match": "\\b\\d+\\.\\d+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.rosegold",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    }
+  }
+}

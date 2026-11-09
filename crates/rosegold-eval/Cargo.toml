@@ -1,0 +1,15 @@
+[package]
+name = "rosegold-eval"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Tree-walk interpreter for RoseGold"
+
+[dependencies]
+rosegold-syntax = { path = "../rosegold-syntax" }
+rosegold-check = { path = "../rosegold-check" }
+indexmap = "=2.14.2"
+regex = "1"
+
+[dev-dependencies]
+rosegold-syntax = { path = "../rosegold-syntax" }

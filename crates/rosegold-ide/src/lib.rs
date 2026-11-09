@@ -1,0 +1,21 @@
+mod completions;
+mod diagnostics;
+mod format;
+mod goto;
+mod hover;
+mod idents;
+mod pos;
+mod protocol;
+mod rename;
+mod signatures;
+mod usages;
+mod walk;
+
+pub use completions::{suggest, Item};
+pub use format::{format_source, list_rg_files, FormatResult, Options};
+pub use goto::{at as goto_at, Loc};
+pub use hover::{at as hover_at, Info as HoverInfo};
+pub use protocol::{handle, serve};
+pub use rename::{apply as rename_apply, is_stdlib_file, is_valid_name, rewrite_hits, skip_file};
+pub use signatures::{at as signature_at, Info as SignatureInfo};
+pub use usages::{in_file as usages_in_file, including_crates, of_name, Hit};

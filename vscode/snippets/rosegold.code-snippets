@@ -1,0 +1,229 @@
+{
+  "function": {
+    "prefix": "fn",
+    "body": ["fn ${1:name}(${2})${3:: Int} {", "    $0", "}"],
+    "description": "function"
+  },
+  "main": {
+    "prefix": "main",
+    "body": ["fn main(): Int {", "    $0", "    return 0;", "}"],
+    "description": "main function"
+  },
+  "test": {
+    "prefix": "test",
+    "body": ["@test", "fn ${1:name}() {", "    $0", "}"],
+    "description": "@test function"
+  },
+  "class": {
+    "prefix": "class",
+    "body": ["class ${1:Name} {", "    $0", "}"],
+    "description": "class"
+  },
+  "struct": {
+    "prefix": "struct",
+    "body": ["struct ${1:Name} {", "    $0", "}"],
+    "description": "struct"
+  },
+  "enum": {
+    "prefix": "enum",
+    "body": ["enum ${1:Name} {", "    $0", "}"],
+    "description": "enum"
+  },
+  "trait": {
+    "prefix": "trait",
+    "body": ["trait ${1:Name} {", "    $0", "}"],
+    "description": "trait"
+  },
+  "match": {
+    "prefix": "match",
+    "body": ["match ${1:x} {", "    $0", "}"],
+    "description": "match"
+  },
+  "switch": {
+    "prefix": "switch",
+    "body": ["switch ${1:x} {", "    $0", "}"],
+    "description": "switch"
+  },
+  "import": {
+    "prefix": "import",
+    "body": "import ${1:ui};",
+    "description": "import crate"
+  },
+  "import helpers": {
+    "prefix": "helpers",
+    "body": "import helpers;",
+    "description": "import TerraLite helpers"
+  },
+  "import TLModAPI": {
+    "prefix": "TLModAPI",
+    "body": [
+      "import TLModAPI;",
+      "",
+      "fn on_init() {",
+      "    var Mod: TLMod = TLModAPI.createMod(\"${1:name}\", \"${2:1.0.0}\");",
+      "    var Register: TLRegister = TLModAPI.createRegister(Mod);",
+      "    Mod.log(\"${3:loaded}\");",
+      "    Register.BLOCK.register(\"${4:namespace}\", \"${5:path}\");",
+      "    $0",
+      "}"
+    ],
+    "description": "TLModAPI on_init"
+  },
+  "hooks.before_break": {
+    "prefix": "before_break",
+    "body": [
+      "fn ${1:allow}(block: String): Bool {",
+      "    return ${2:true};",
+      "}",
+      "",
+      "fn main(): Int {",
+      "    hooks.before_break(\"${3:id}\", ${1:allow});",
+      "    return 0;",
+      "}"
+    ],
+    "description": "hooks.before_break"
+  },
+  "events.break_block": {
+    "prefix": "break_block",
+    "body": [
+      "fn ${1:allow}(block: String, x: Int, y: Int, z: Int): Bool {",
+      "    return ${2:true};",
+      "}",
+      "",
+      "fn main(): Int {",
+      "    events.break_block(\"${3:id}\", ${1:allow});",
+      "    return 0;",
+      "}"
+    ],
+    "description": "events.break_block"
+  },
+  "hooks.before_place": {
+    "prefix": "before_place",
+    "body": [
+      "fn ${1:allow}(item: String, x: Int, y: Int, z: Int): Bool {",
+      "    return world.block(x, y - 1, z) != \"${2:stone}\";",
+      "}",
+      "",
+      "fn main(): Int {",
+      "    hooks.before_place(\"${3:id}\", ${1:allow});",
+      "    return 0;",
+      "}"
+    ],
+    "description": "hooks.before_place"
+  },
+  "events.placed": {
+    "prefix": "placed",
+    "body": [
+      "fn ${1:on_place}(item: String, x: Int, y: Int, z: Int) {",
+      "    $0",
+      "}",
+      "",
+      "fn main(): Int {",
+      "    events.placed(\"${2:id}\", ${1:on_place});",
+      "    return 0;",
+      "}"
+    ],
+    "description": "events.placed"
+  },
+  "block.register": {
+    "prefix": "block.register",
+    "body": "block.register(\"${1:namespace}\", \"${2:path}\");",
+    "description": "block.register"
+  },
+  "item.register": {
+    "prefix": "item.register",
+    "body": "item.register(\"${1:namespace}\", \"${2:path}\");",
+    "description": "item.register"
+  },
+  "item.places": {
+    "prefix": "item.places",
+    "body": "item.places(\"${1:item}\", \"${2:block}\");",
+    "description": "item.places"
+  },
+  "recipe.register": {
+    "prefix": "recipe.register",
+    "body": "recipe.register(\"${1:result}\", \"${2:ingredient}\");",
+    "description": "recipe.register"
+  },
+  "recipe.shapeless": {
+    "prefix": "recipe.shapeless",
+    "body": "recipe.shapeless(\"${1:result}\", \"${2:a+b}\");",
+    "description": "recipe.shapeless"
+  },
+  "recipe.shaped": {
+    "prefix": "recipe.shaped",
+    "body": "recipe.shaped(\"${1:result}\", \"${2:a,b,c, , , , , , }\");",
+    "description": "recipe.shaped"
+  },
+  "entity.register": {
+    "prefix": "entity.register",
+    "body": "entity.register(\"${1:namespace}\", \"${2:path}\");",
+    "description": "entity.register"
+  },
+  "import GUIAPI": {
+    "prefix": "GUIAPI",
+    "body": [
+      "import GUIAPI;",
+      "",
+      "fn main() {",
+      "    var screen = GUIAPI.createScreen(\"${1:notes}\", GUIAPI.vec(220, 180), GUIAPI.vec(16, 24));",
+      "    var row = GUIAPI.text(\"${2:marker}\", \"${3:Marker}\");",
+      "    GUIAPI.addElement(screen, row);",
+      "    GUIAPI.on_press(screen, \"${4:n}\", fn(name) {",
+      "        GUIAPI.say(name);",
+      "    });",
+      "}"
+    ],
+    "description": "import GUIAPI"
+  },
+  "GUIAPI.say": {
+    "prefix": "GUIAPI.say",
+    "body": "GUIAPI.say(\"${1:line}\");",
+    "description": "GUIAPI.say"
+  },
+  "import SettingsAPI": {
+    "prefix": "SettingsAPI",
+    "body": [
+      "import SettingsAPI;",
+      "",
+      "fn main() {",
+      "    var ${1:game} = SettingsAPI.createCategory(\"${2:game}\", \"${3:how it feels}\");",
+      "    var ${4:glow} = SettingsAPI.createOption(${1:game}, \"${5:glow}\", \"${6:soft glow}\", \"${7:on}\");",
+      "    SettingsAPI.choices(${4:glow}, \"${8:on off}\");",
+      "    SettingsAPI.on_change(${4:glow}, fn(name) {",
+      "        GUIAPI.say(SettingsAPI.value(name));",
+      "    });",
+      "}"
+    ],
+    "description": "import SettingsAPI"
+  },
+  "SettingsAPI.createCategory": {
+    "prefix": "SettingsAPI.createCategory",
+    "body": "SettingsAPI.createCategory(\"${1:game}\", \"${2:how it feels}\")",
+    "description": "SettingsAPI.createCategory"
+  },
+  "SettingsAPI.createOption": {
+    "prefix": "SettingsAPI.createOption",
+    "body": "SettingsAPI.createOption(${1:category}, \"${2:glow}\", \"${3:soft glow}\", \"${4:on}\")",
+    "description": "SettingsAPI.createOption"
+  },
+  "SettingsAPI.choices": {
+    "prefix": "SettingsAPI.choices",
+    "body": "SettingsAPI.choices(${1:option}, \"${2:low mid high}\");",
+    "description": "SettingsAPI.choices"
+  },
+  "SettingsAPI.on_change": {
+    "prefix": "SettingsAPI.on_change",
+    "body": [
+      "SettingsAPI.on_change(${1:option}, fn(name) {",
+      "    GUIAPI.say(SettingsAPI.value(name));",
+      "});"
+    ],
+    "description": "SettingsAPI.on_change"
+  },
+  "SettingsAPI.value": {
+    "prefix": "SettingsAPI.value",
+    "body": "SettingsAPI.value(\"${1:name}\")",
+    "description": "SettingsAPI.value"
+  }
+}

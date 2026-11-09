@@ -1,0 +1,3 @@
+[workspace]
+resolver = "2"
+members = ["crates/rosegold-syntax", "crates/rosegold-check", "crates/rosegold-eval", "crates/rosegold-ide", "crates/rosegold-cli"]

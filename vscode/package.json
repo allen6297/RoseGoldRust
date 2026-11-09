@@ -1,0 +1,74 @@
+{
+  "name": "rosegold",
+  "displayName": "RoseGold",
+  "description": "RoseGold language support for .rg files in Cursor and VS Code.",
+  "version": "0.1.0",
+  "publisher": "rosegoldc",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:rosegold"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "rosegold",
+        "aliases": ["RoseGold", "rosegold"],
+        "extensions": [".rg"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "rosegold",
+        "scopeName": "source.rosegold",
+        "path": "./syntaxes/rosegold.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "rosegold",
+        "path": "./snippets/rosegold.code-snippets"
+      }
+    ],
+    "commands": [
+      {
+        "command": "rosegold.restart",
+        "title": "RoseGold: Restart Language Service"
+      },
+      {
+        "command": "rosegold.runFile",
+        "title": "RoseGold: Run File"
+      },
+      {
+        "command": "rosegold.testFile",
+        "title": "RoseGold: Test File"
+      }
+    ],
+    "configuration": {
+      "title": "RoseGold",
+      "properties": {
+        "rosegold.rg": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the RoseGold rg executable. Empty uses target/debug/rg or target/release/rg in the workspace, then rg on PATH. The language service is started as `rg ide`."
+        },
+        "rosegold.format.compact": {
+          "type": "boolean",
+          "default": false,
+          "description": "Format without a blank line between top-level items."
+        },
+        "rosegold.format.comments": {
+          "type": "boolean",
+          "default": true,
+          "description": "Keep comments when formatting."
+        }
+      }
+    }
+  }
+}

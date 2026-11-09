@@ -1,0 +1,17 @@
+[package]
+name = "rosegold-cli"
+version = "0.1.0"
+edition = "2021"
+publish = false
+autobins = false
+description = "RoseGold command line"
+
+[dependencies]
+rosegold-syntax = { path = "../rosegold-syntax" }
+rosegold-check = { path = "../rosegold-check" }
+rosegold-eval = { path = "../rosegold-eval" }
+rosegold-ide = { path = "../rosegold-ide" }
+
+[[bin]]
+name = "rg"
+path = "src/main.rs"
