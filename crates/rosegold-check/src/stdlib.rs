@@ -11,6 +11,8 @@ const CHILDREN: &[&str] = &[
     "collections",
     "helpers",
     "ModAPI",
+    "Blocks",
+    "Items",
     "io",
     "vec",
     "time",
@@ -225,7 +227,7 @@ pub fn crate_dir(name: &str, from_file: &str) -> Option<PathBuf> {
 /// Single-file TerraLite APIs under `builtin/std/TerraLite/`.
 fn terralite_api_file(root: &Path, child: &str) -> Option<PathBuf> {
     let name = match child {
-        "ModAPI" | "GUIAPI" | "SettingsAPI" => child,
+        "ModAPI" | "Blocks" | "Items" | "GUIAPI" | "SettingsAPI" => child,
         _ => return None,
     };
     let file = root.join("TerraLite").join(format!("{name}.rg"));
@@ -712,7 +714,13 @@ mod tests {
     #[test]
     fn terralite_api_files_accept_host_calls() {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../builtin/std/TerraLite");
-        for name in ["ModAPI.rg", "GUIAPI.rg", "SettingsAPI.rg"] {
+        for name in [
+            "ModAPI.rg",
+            "Blocks.rg",
+            "Items.rg",
+            "GUIAPI.rg",
+            "SettingsAPI.rg",
+        ] {
             let path = root.join(name);
             let source = std::fs::read_to_string(&path).expect(name);
             let diags = crate::check_source(&source, &path.display().to_string());
@@ -722,6 +730,19 @@ mod tests {
                 .map(|d| format!("{name}:{} {}", d.line, d.message))
                 .collect();
             assert!(errors.is_empty(), "{}", errors.join("\n"));
+        }
+    }
+
+    #[test]
+    fn blocks_and_items_load_from_terralite() {
+        let from = r"C:\CODE\TerraLite\mods\ember.rg";
+        for name in ["Blocks", "Items"] {
+            let file = crate_dir(name, from).unwrap_or_else(|| panic!("{name}"));
+            let bundled = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("../../builtin/std/TerraLite")
+                .join(format!("{name}.rg"));
+            assert!(same_file(&file, &bundled), "{}", file.display());
+            assert!(file.is_file());
         }
     }
 }

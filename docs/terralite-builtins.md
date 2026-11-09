@@ -98,8 +98,8 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 - `TLRegistry.open` calls `modapi.registry`. The game stores `("registry", kind)` and does nothing else with it.
 - `Register.BLOCK.register` and `Register.ITEM.register` are `block.register` and `item.register`.
 - `Register.texture` / `model` / `hardness` / `light` / `places` / `stack` / `recipe` forward to the block and item calls above.
-- `ModAPI.defineBlock(namespace, path, model, texture, seconds, glow)` registers a block and applies those fields when non-empty / positive.
-- `ModAPI.defineItem(namespace, path, places, count)` registers an item, optionally places a block, and optionally sets stack size (`count` 0 keeps 64).
+- `import Blocks` resolves to `builtin/std/TerraLite/Blocks.rg`. `Blocks.defineBlock(namespace, path, model, texture, seconds, glow)` registers a block and applies those fields when non-empty / positive. Also `Blocks.texture` / `model` / `hardness` / `light`.
+- `import Items` resolves to `builtin/std/TerraLite/Items.rg`. `Items.defineItem(namespace, path, places, count)` registers an item, optionally places a block, and optionally sets stack size (`count` 0 keeps 64). Also `Items.places` / `stack`.
 - Any other kind calls `modapi.content(kind, namespace, path)`. The kind must be uppercase (`BLOCK_ENTITY`, `SCREEN`, `COMMAND`, …). The namespace and path must be lowercase.
 
 Of those stored entries, the game uses two:
@@ -121,7 +121,7 @@ Language hosts, same names as Java: `checks` (`eq`, `neq`, `eq_string`, `that`, 
 
 Std children Java also has: `std.math`, `std.str`, `std.io`, `std.vec`, `std.time`, `std.path`, `std.json`, `std.regex`, `std.ui`.
 
-Std children only the Rust tree has: `std.collections`, `std.helpers`, `std.ModAPI`, `std.GUIAPI`, `std.SettingsAPI`.
+Std children only the Rust tree has: `std.collections`, `std.helpers`, `std.ModAPI`, `std.Blocks`, `std.Items`, `std.GUIAPI`, `std.SettingsAPI`.
 
 `std.helpers` is the small mod helper (`id`, `same_id`, `holding`, `block_at`, `air`, `replace_block`, `stack_at_least`). It calls `player.held`, `world.get_block`, `world.is_air`, `world.set_block`, and `player.count`, so it only works inside a hook. `rose-kit.rg` imports it.
 
@@ -140,7 +140,7 @@ Std children only the Rust tree has: `std.collections`, `std.helpers`, `std.ModA
 | `mods/field-notes.rg` | `hooks.break_speed`, `hooks.on_select`, `hooks.after_break`, `world.slot`, `world.count`, `world.block`, `world.write` |
 | `mods/red-wool.rg` | `events.placed`, `events.break_drop`, `events.pickup_item`, `world.get_block`, `world.get_meta`, `world.set_meta`, `player.held`, `world.has_time`, `world.is_day`, `world.season`, `player.present`, `player.x`, `item.exists`, `item.max_count` |
 | `mods/rose-kit.rg` | `import helpers`, `block.register`, `block.texture`, `block.model`, `item.register`, `item.places`, `recipe.register`, `recipe.shapeless`, `recipe.shaped`, `entity.register`, `events.placed`, `events.entity_spawn`, `events.entity_hurt`, `events.entity_tick`, `world.set_block` |
-| `mods/ember.rg` | `import ModAPI`, `defineBlock` / `defineItem`, per-block model under `mods/ember/assets/ember/models/block/`, hardness, light, stack size, place-as-block |
+| `mods/ember.rg` | `import ModAPI`, `import Blocks`, `import Items`, `Blocks.defineBlock` / `Items.defineItem`, per-block model under `mods/ember/assets/ember/models/block/`, hardness, light, stack size, place-as-block |
 | `mods/k's-guide/src/mod.rg` | `import ModAPI`, `on_init`, registries for item, block, entity, block entity, item group, screen, event, command, config, resource, texture, particle |
 
 ## Compared with Java
