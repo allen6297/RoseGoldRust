@@ -2046,6 +2046,13 @@ impl<'a> TypeChecker<'a> {
                 "spawn" | "despawn" => self.check_arity(&label, 4, n, line, col),
                 _ => miss(self),
             },
+            "block_entity" => match name {
+                "bind" => self.check_arity(&label, 1, n, line, col),
+                "has" | "clear" => self.check_arity(&label, 3, n, line, col),
+                "get" | "get_int" => self.check_arity(&label, 4, n, line, col),
+                "set" | "set_int" => self.check_arity(&label, 5, n, line, col),
+                _ => miss(self),
+            },
             "modapi" => match name {
                 "note" | "registry" => self.check_arity(&label, 1, n, line, col),
                 "content" => self.check_arity(&label, 3, n, line, col),
@@ -2056,6 +2063,7 @@ impl<'a> TypeChecker<'a> {
                 "element" => self.check_arity(&label, 11, n, line, col),
                 "remove" | "read" => self.check_arity(&label, 2, n, line, col),
                 "press" => self.check_arity(&label, 3, n, line, col),
+                "open" => self.check_arity(&label, 1, n, line, col),
                 _ => miss(self),
             },
             "chat" => match name {
@@ -4167,12 +4175,18 @@ fn host_return(module: &str, name: &str) -> String {
             "model" | "hostile" | "spawn_egg" | "spawn" | "despawn" => "Bool".into(),
             _ => "Void".into(),
         },
+        "block_entity" => match name {
+            "get" => "String".into(),
+            "get_int" => "Int".into(),
+            "bind" | "set" | "set_int" | "clear" | "has" => "Bool".into(),
+            _ => "Void".into(),
+        },
         "modapi" => match name {
             "content" => "String".into(),
             _ => "Void".into(),
         },
         "gui" => match name {
-            "screen" | "element" | "remove" => "Bool".into(),
+            "screen" | "element" | "remove" | "open" => "Bool".into(),
             "read" => "String".into(),
             _ => "Void".into(),
         },

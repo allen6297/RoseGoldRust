@@ -63,3 +63,16 @@ class BlockProperties {
     var hardness: Float = 1.5;
     var light: Int = 0;
 }
+
+/// Register a block plus a placeable item that puts that block down.
+/// Block and item ids must differ (`namespace:block_path` vs `namespace:item_path`).
+/// Returns the Block; the item id is `namespace:item_path`.
+fn defineBlockItem(namespace: String, block_path: String, item_path: String, model_path: String, texture_path: String, seconds: Float, glow: Int, stack: Int): Block {
+    var brick = defineBlock(namespace, block_path, model_path, texture_path, seconds, glow);
+    var held = item.register(namespace, item_path);
+    item.places(held, brick.id);
+    if (stack > 0) {
+        item.stack(held, stack);
+    }
+    return brick;
+}

@@ -103,16 +103,18 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 - `TLRegistry.open` calls `modapi.registry`. The game stores `("registry", kind)` and does nothing else with it.
 - `Register.BLOCK.register` and `Register.ITEM.register` are `block.register` and `item.register`.
 - `Register.texture` / `model` / `hardness` / `light` / `places` / `stack` / `recipe` forward to the block and item calls above.
-- `import Blocks` resolves to `builtin/std/TerraLite/Blocks.rg`. `Blocks.defineBlock(namespace, path, model, texture, seconds, glow)` registers a block, applies those fields when non-empty / positive, and returns a `Block` with a filled `BlockProperties` bag (`.id` is the registered id). Also `Blocks.texture` / `model` / `hardness` / `light`.
+- `import Blocks` resolves to `builtin/std/TerraLite/Blocks.rg`. `Blocks.defineBlock(namespace, path, model, texture, seconds, glow)` registers a block, applies those fields when non-empty / positive, and returns a `Block` with a filled `BlockProperties` bag (`.id` is the registered id). `Blocks.defineBlockItem(namespace, block_path, item_path, model, texture, seconds, glow, stack)` also registers a placeable item for that block. Also `Blocks.texture` / `model` / `hardness` / `light`.
 - `import Items` resolves to `builtin/std/TerraLite/Items.rg`. `Items.defineItem(namespace, path, places, count)` registers an item, optionally places a block, optionally sets stack size (`count` 0 keeps 64), and returns an `Item` with a filled `ItemProperties` bag (`.id` is the registered id). Free `Items.places` / `stack` still forward to the host. An `Item` also has `.places(target)` / `.stack(count)` methods that update its properties and call the host with that item's id.
 - `import Entities` resolves to `builtin/std/TerraLite/Entities.rg`. `Entities.defineEntity(namespace, path, model, egg_path, hostile)` registers a mob, optional Blockbench model, optional spawn-egg item path, and hostile AI flag; returns an `Entity` with `EntityProperties`. Free `Entities.setModel` / `setHostile` / `spawnEgg` / `spawn` / `despawn` / `spawnNear` forward to the host. `spawnNear` needs `player.*` (hook only).
+- `import BlockEntities` resolves to `builtin/std/TerraLite/BlockEntities.rg`. `BlockEntities.bind(block_id)` marks a tile block; `get` / `set` / `getInt` / `setInt` / `has` / `clear` / `openScreen` wrap the host calls (tile IO and `gui.open` need a hook).
+- `import GUIAPI` — `GUIAPI.open(screen)` / `openNamed(name)` call `gui.open` from a hook so a block entity (or other interact) can show the panel without a hotkey.
 - `Tickable` / `Interactable` on ModAPI are real traits: `onTick(n)`, and `interact` / `onUseBlock` / `onUseItem` / `onUseEntity` (false cancels). Defaults: `TickBehavior`, `UseBehavior`. Bind with `ModAPI.bindTick` / `bindUseBlock` / … or `TLMod.listenTick` / `listenUseBlock` (forwards to `events.*`). `mods/ember.rg` implements both.
 - Any other kind calls `modapi.content(kind, namespace, path)`. The kind must be uppercase (`BLOCK_ENTITY`, `SCREEN`, `COMMAND`, …). The namespace and path must be lowercase.
 
 Of those stored entries, the game uses two:
 
-- `BLOCK_ENTITY` is remembered by the pack (`note_block_entity`). It does not create a working block entity.
-- `SCREEN` is added to the pack's script screen list (`add_script_screen`). It does not open a UI.
+- `BLOCK_ENTITY` / `block_entity.bind(id)` marks a block id as a script tile. Hook-time `block_entity.get` / `set` / `get_int` / `set_int` / `has` / `clear` read and write per-cell string fields. Builtin chests stay on `Pack::is_container`; script tiles do not open an empty chest UI.
+- `SCREEN` is added to the pack's script screen list (`add_script_screen`). `GUIAPI.createScreen` still builds the drawn panel. Hook-time `gui.open(name)` / `GUIAPI.open` / `GUIAPI.openNamed` opens that panel (used from block-entity `use_block` flows).
 - `COMMAND` becomes a chat-row label in the client (`command_rows`). The command does not run.
 - `PARTICLE` picks a color (`particle_color`). It does not spawn particles.
 
@@ -128,7 +130,7 @@ Language hosts, same names as Java: `checks` (`eq`, `neq`, `eq_string`, `that`, 
 
 Std children Java also has: `std.math`, `std.str`, `std.io`, `std.vec`, `std.time`, `std.path`, `std.json`, `std.regex`, `std.ui`.
 
-Std children only the Rust tree has: `std.collections`, `std.helpers`, `std.ModAPI`, `std.Blocks`, `std.Items`, `std.Entities`, `std.GUIAPI`, `std.SettingsAPI`.
+Std children only the Rust tree has: `std.collections`, `std.helpers`, `std.ModAPI`, `std.Blocks`, `std.Items`, `std.Entities`, `std.BlockEntities`, `std.GUIAPI`, `std.SettingsAPI`.
 
 `std.helpers` is the small mod helper (`id`, `same_id`, `holding`, `block_at`, `air`, `replace_block`, `stack_at_least`). It calls `player.held`, `world.get_block`, `world.is_air`, `world.set_block`, and `player.count`, so it only works inside a hook. `rose-kit.rg` imports it.
 

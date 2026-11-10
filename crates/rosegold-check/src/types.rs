@@ -122,6 +122,7 @@ pub fn is_host_module(name: &str) -> bool {
             | "block"
             | "recipe"
             | "entity"
+            | "block_entity"
             | "modapi"
             | "gui"
             | "chat"

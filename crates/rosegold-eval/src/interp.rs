@@ -633,6 +633,10 @@ fn host_arity(module: &str, name: &str) -> Option<usize> {
         ("chat", "say") => Some(1),
         ("settings", "value") => Some(1),
         ("entity", "spawn" | "despawn") => Some(4),
+        ("block_entity", "has" | "clear") => Some(3),
+        ("block_entity", "get" | "get_int") => Some(4),
+        ("block_entity", "set" | "set_int") => Some(5),
+        ("gui", "open") => Some(1),
         _ => None,
     }
 }
@@ -748,6 +752,7 @@ fn is_host(name: &str) -> bool {
             | "block"
             | "recipe"
             | "entity"
+            | "block_entity"
             | "modapi"
             | "gui"
             | "chat"
@@ -2247,8 +2252,14 @@ impl Interp {
         {
             return self.call_registry(module, name, args, line, col);
         }
+        if module == "block_entity" && name == "bind" {
+            return self.bind_block_entity(args, line, col);
+        }
         if module == "modapi" {
             return self.call_modapi(name, args, line, col);
+        }
+        if module == "gui" && name == "open" {
+            return self.call_host(module, name, args, line, col);
         }
         if module == "gui" {
             return self.call_gui(name, args, line, col);
@@ -2256,7 +2267,12 @@ impl Interp {
         if module == "settings" {
             return self.call_settings(name, args, line, col);
         }
-        if module == "world" || module == "player" || module == "item" || module == "chat" {
+        if module == "world"
+            || module == "player"
+            || module == "item"
+            || module == "chat"
+            || module == "block_entity"
+        {
             return self.call_host(module, name, args, line, col);
         }
         if module == "Future" {
@@ -3115,6 +3131,27 @@ impl Interp {
             return Ok(Value::Bool(true));
         }
         Err(self.runtime(&format!("unknown function {module}.{name}"), line, col))
+    }
+
+    /// `block_entity.bind(id)` marks a block id as a script tile during `main`.
+    fn bind_block_entity(
+        &mut self,
+        args: Vec<Value>,
+        line: u32,
+        col: u32,
+    ) -> Result<Value, Halt> {
+        if args.len() != 1 {
+            return Err(self.runtime("block_entity.bind takes 1 argument", line, col));
+        }
+        let Value::String(id) = &args[0] else {
+            return Err(self.runtime("block_entity.bind expects String", line, col));
+        };
+        if id.is_empty() || !id.contains(':') {
+            return Err(self.runtime(&format!("bad block entity {id}"), line, col));
+        }
+        self.attachments
+            .push(("block_entity".to_string(), id.clone(), String::new()));
+        Ok(Value::Bool(true))
     }
 
     /// `entity.hostile(id, flag)` stores `"1"` or `"0"`.

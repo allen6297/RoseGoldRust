@@ -168,6 +168,16 @@ fn on_press(screen: Screen, key: String, pressed: fn(String): Void) {
     gui.press(screen.name, key, pressed);
 }
 
+/// Open this screen from a hook (`events.use_block`, …). False when unknown.
+fn open(screen: Screen): Bool {
+    return gui.open(screen.name);
+}
+
+/// Open a registered GUIAPI screen by name from a hook.
+fn openNamed(name: String): Bool {
+    return gui.open(name);
+}
+
 fn say(line: String): Bool {
     return chat.say(line);
 }
