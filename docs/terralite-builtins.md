@@ -54,6 +54,7 @@ These names are the ones `crates/rosegold` forwards. The game answers them in `c
 | `world.get_meta(x, y, z)` | Metadata nibble, or `0` outside |
 | `world.set_meta(x, y, z, meta)` | Writes `0..=15` on a non-air in-bounds cell |
 | `world.get_fill(x, y, z)` | Compound fill kind (`water` / `ember`), or `""` when empty / outside |
+| `world.fill_level(x, y, z)` | Int. Tank units `0..=8`; other hosts `1` when filled, else `0` |
 | `world.set_fill(x, y, z, kind)` | Bool. Sets `water` / `ember` on a compound host, or clears with `""` / `none` |
 | `world.is_compound(x, y, z)` | True when the solid can hold a compound fill |
 | `world.write` / `world.set_block(x, y, z, id)` | Bool. `"air"` clears. An unknown id returns false and does not write |

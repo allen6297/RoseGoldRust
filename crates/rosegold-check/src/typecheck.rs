@@ -2004,7 +2004,8 @@ impl<'a> TypeChecker<'a> {
                 _ => miss(self),
             },
             "world" => match name {
-                "block" | "get_block" | "get_meta" | "get_fill" | "is_air" | "is_compound" => {
+                "block" | "get_block" | "get_meta" | "get_fill" | "fill_level" | "is_air"
+                | "is_compound" => {
                     self.check_arity(&label, 3, n, line, col)
                 }
                 "write" | "set_block" | "set_meta" | "set_fill" => {
@@ -4145,7 +4146,7 @@ fn host_return(module: &str, name: &str) -> String {
         },
         "world" => match name {
             "hardness" | "time_of_day" => "Float".into(),
-            "light" | "count" | "get_meta" => "Int".into(),
+            "light" | "count" | "get_meta" | "fill_level" => "Int".into(),
             "write" | "set_block" | "set_meta" | "set_fill" | "is_air" | "is_compound"
             | "is_day" | "has_time" => "Bool".into(),
             "block" | "get_block" | "get_fill" | "replaces" | "slot" | "season" => "String".into(),

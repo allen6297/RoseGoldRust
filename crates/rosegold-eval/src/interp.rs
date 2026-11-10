@@ -616,7 +616,7 @@ fn host_arity(module: &str, name: &str) -> Option<usize> {
         ("world", "block" | "get_block") => Some(3),
         ("world", "write" | "set_block") => Some(4),
         ("world", "set_meta" | "set_fill") => Some(4),
-        ("world", "get_meta" | "get_fill" | "is_air" | "is_compound") => Some(3),
+        ("world", "get_meta" | "get_fill" | "fill_level" | "is_air" | "is_compound") => Some(3),
         (
             "world",
             "hardness" | "light" | "replaces" | "slot" | "count" | "time_of_day" | "is_day"
