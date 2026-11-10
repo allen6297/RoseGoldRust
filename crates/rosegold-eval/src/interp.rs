@@ -3119,7 +3119,12 @@ impl Interp {
             || (module == "item" && name == "places")
             || (module == "entity" && (name == "model" || name == "spawn_egg"))
             || (module == "recipe"
-                && (name == "register" || name == "shapeless" || name == "shaped"))
+                && (name == "register"
+                    || name == "shapeless"
+                    || name == "shaped"
+                    || name == "smelt"
+                    || name == "smoke"
+                    || name == "blast"))
             || (module == "loot" && (name == "block" || name == "chest"))
         {
             let kind = if module == "recipe" && name == "register" {

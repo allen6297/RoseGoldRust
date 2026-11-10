@@ -118,6 +118,21 @@ class TLRegister {
         recipe.shaped(result, grid);
     }
 
+    /// Furnace cook line. `input` becomes `result` (also blast when not food/bricks).
+    fn smelt(result: String, input: String) {
+        recipe.smelt(result, input);
+    }
+
+    /// Smoker-only cook line.
+    fn smoke(result: String, input: String) {
+        recipe.smoke(result, input);
+    }
+
+    /// Blast-furnace-only cook line.
+    fn blast(result: String, input: String) {
+        recipe.blast(result, input);
+    }
+
     /// Block-break loot. `list` is `a(+b…)` — every id drops once.
     fn blockLoot(block: String, list: String) {
         loot.block(block, list);

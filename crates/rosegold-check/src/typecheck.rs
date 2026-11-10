@@ -2027,7 +2027,9 @@ impl<'a> TypeChecker<'a> {
                 _ => miss(self),
             },
             "recipe" => match name {
-                "register" | "shapeless" | "shaped" => self.check_arity(&label, 2, n, line, col),
+                "register" | "shapeless" | "shaped" | "smelt" | "smoke" | "blast" => {
+                    self.check_arity(&label, 2, n, line, col)
+                }
                 _ => miss(self),
             },
             "loot" => match name {
@@ -4164,7 +4166,7 @@ fn host_return(module: &str, name: &str) -> String {
             _ => "Void".into(),
         },
         "recipe" => match name {
-            "register" | "shapeless" | "shaped" => "Bool".into(),
+            "register" | "shapeless" | "shaped" | "smelt" | "smoke" | "blast" => "Bool".into(),
             _ => "Void".into(),
         },
         "loot" => match name {
