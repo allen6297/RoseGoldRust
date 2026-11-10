@@ -1994,8 +1994,8 @@ impl<'a> TypeChecker<'a> {
             "events" => match name {
                 "break" | "place" | "break_block" | "place_block" | "broken" | "placed"
                 | "select_slot" | "open_screen" | "break_speed" | "pickup_item" | "break_drop"
-                | "loot" | "entity_spawn" | "entity_hurt" | "entity_tick" | "use_item"
-                | "use_block" | "use_entity" | "attack" | "chat" | "respawn" | "craft"
+                | "loot" | "entity_spawn" | "entity_hurt" | "entity_death" | "entity_tick"
+                | "use_item" | "use_block" | "use_entity" | "attack" | "chat" | "respawn" | "craft"
                 | "smelt" | "repair" | "enchant" | "brew" | "smith" | "weave" | "tick" | "dawn"
                 | "dusk" | "jump" | "sprint" | "land" | "command" => {
                     self.check_arity(&label, 2, n, line, col)
@@ -2040,7 +2040,9 @@ impl<'a> TypeChecker<'a> {
                 _ => miss(self),
             },
             "entity" => match name {
-                "register" => self.check_arity(&label, 2, n, line, col),
+                "register" | "model" | "hostile" | "spawn_egg" => {
+                    self.check_arity(&label, 2, n, line, col)
+                }
                 "spawn" | "despawn" => self.check_arity(&label, 4, n, line, col),
                 _ => miss(self),
             },
@@ -4162,7 +4164,7 @@ fn host_return(module: &str, name: &str) -> String {
         },
         "entity" => match name {
             "register" => "String".into(),
-            "spawn" | "despawn" => "Bool".into(),
+            "model" | "hostile" | "spawn_egg" | "spawn" | "despawn" => "Bool".into(),
             _ => "Void".into(),
         },
         "modapi" => match name {

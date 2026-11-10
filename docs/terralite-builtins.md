@@ -28,8 +28,9 @@ Register with `hooks.<name>(id, fn)` or the Fabric-style `events.<name>(id, fn)`
 | `break_speed` | `hooks.break_speed` | `events.break_speed` | `fn(block: String): Float` | scale, not cancel |
 | `pickup_item` | none | `events.pickup_item` | `fn(item: String): Bool` | `false` leaves the drop |
 | `break_drop` | none | `events.break_drop` | `fn(block: String, left: String): String` | `""` drops nothing |
-| `entity_spawn` | none | `events.entity_spawn` | `fn(kind: String, x, y, z)` | no |
+| `entity_spawn` | none | `events.entity_spawn` | `fn(kind: String, x, y, z): Bool` | `false` cancels |
 | `entity_hurt` | none | `events.entity_hurt` | `fn(kind: String, amount: Int): Bool` | `false` cancels |
+| `entity_death` | none | `events.entity_death` | `fn(kind: String, x, y, z): Bool` | `false` cancels despawn/loot side effects when the host asks |
 | `entity_tick` | none | `events.entity_tick` | `fn(kind: String)` | no |
 
 `hooks.before_place` and `events.place_block` are one list. Both are called with four arguments. Only break keeps two lists: the one-argument `hooks.before_break` and the four-argument `events.break_block`. There is no `hooks.pickup_item`, `hooks.break_drop`, `hooks.entity_spawn`, `hooks.entity_hurt`, or `hooks.entity_tick`. Those exist only as `events.*`.
@@ -91,6 +92,10 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 | `recipe.shapeless(result, ingredients)` | A pile, ids joined with `+`. Order on the grid does not matter |
 | `recipe.shaped(result, grid)` | Nine cells separated by commas, left to right, top to bottom. An empty cell is blank. The shape can sit anywhere on the 3×3 |
 | `entity.register(namespace, path)` | A simple mob `namespace:path`. It stands just east of the oak stairs. The same script can register it again |
+| `entity.model(id, path)` | Blockbench `.bbmodel` for that mob (pack or mod assets) |
+| `entity.hostile(id, flag)` | Default chase/attack AI when the host Guest supports it |
+| `entity.spawn_egg(id, item)` | Creative/hotbar item that spawns this mob on use |
+| `entity.spawn(id, x, y, z)` / `entity.despawn(...)` | Place or remove a body. During `main` it is recorded for load; inside a hook the host places it live |
 
 `import ModAPI` is the Fabric-style entry. It lives at `C:\CODE\RoseGoldRust\builtin\std\TerraLite\ModAPI.rg` (same folder as `GUIAPI.rg` and `SettingsAPI.rg`). The old `builtin/std/TLModAPI/` path is gone.
 
@@ -100,6 +105,7 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 - `Register.texture` / `model` / `hardness` / `light` / `places` / `stack` / `recipe` forward to the block and item calls above.
 - `import Blocks` resolves to `builtin/std/TerraLite/Blocks.rg`. `Blocks.defineBlock(namespace, path, model, texture, seconds, glow)` registers a block, applies those fields when non-empty / positive, and returns a `Block` with a filled `BlockProperties` bag (`.id` is the registered id). Also `Blocks.texture` / `model` / `hardness` / `light`.
 - `import Items` resolves to `builtin/std/TerraLite/Items.rg`. `Items.defineItem(namespace, path, places, count)` registers an item, optionally places a block, optionally sets stack size (`count` 0 keeps 64), and returns an `Item` with a filled `ItemProperties` bag (`.id` is the registered id). Free `Items.places` / `stack` still forward to the host. An `Item` also has `.places(target)` / `.stack(count)` methods that update its properties and call the host with that item's id.
+- `import Entities` resolves to `builtin/std/TerraLite/Entities.rg`. `Entities.defineEntity(namespace, path, model, egg_path, hostile)` registers a mob, optional Blockbench model, optional spawn-egg item path, and hostile AI flag; returns an `Entity` with `EntityProperties`. Free `Entities.setModel` / `setHostile` / `spawnEgg` / `spawn` / `despawn` / `spawnNear` forward to the host. `spawnNear` needs `player.*` (hook only).
 - `Tickable` / `Interactable` on ModAPI are empty trait stubs for later entity-style hooks.
 - Any other kind calls `modapi.content(kind, namespace, path)`. The kind must be uppercase (`BLOCK_ENTITY`, `SCREEN`, `COMMAND`, …). The namespace and path must be lowercase.
 
@@ -122,7 +128,7 @@ Language hosts, same names as Java: `checks` (`eq`, `neq`, `eq_string`, `that`, 
 
 Std children Java also has: `std.math`, `std.str`, `std.io`, `std.vec`, `std.time`, `std.path`, `std.json`, `std.regex`, `std.ui`.
 
-Std children only the Rust tree has: `std.collections`, `std.helpers`, `std.ModAPI`, `std.Blocks`, `std.Items`, `std.GUIAPI`, `std.SettingsAPI`.
+Std children only the Rust tree has: `std.collections`, `std.helpers`, `std.ModAPI`, `std.Blocks`, `std.Items`, `std.Entities`, `std.GUIAPI`, `std.SettingsAPI`.
 
 `std.helpers` is the small mod helper (`id`, `same_id`, `holding`, `block_at`, `air`, `replace_block`, `stack_at_least`). It calls `player.held`, `world.get_block`, `world.is_air`, `world.set_block`, and `player.count`, so it only works inside a hook. `rose-kit.rg` imports it.
 
@@ -141,7 +147,7 @@ Std children only the Rust tree has: `std.collections`, `std.helpers`, `std.ModA
 | `mods/field-notes.rg` | `hooks.break_speed`, `hooks.on_select`, `hooks.after_break`, `world.slot`, `world.count`, `world.block`, `world.write` |
 | `mods/red-wool.rg` | `events.placed`, `events.break_drop`, `events.pickup_item`, `world.get_block`, `world.get_meta`, `world.set_meta`, `player.held`, `world.has_time`, `world.is_day`, `world.season`, `player.present`, `player.x`, `item.exists`, `item.max_count` |
 | `mods/rose-kit.rg` | `import helpers`, `block.register`, `block.texture`, `block.model`, `item.register`, `item.places`, `recipe.register`, `recipe.shapeless`, `recipe.shaped`, `entity.register`, `events.placed`, `events.entity_spawn`, `events.entity_hurt`, `events.entity_tick`, `world.set_block` |
-| `mods/ember.rg` | `import ModAPI`, `import Blocks`, `import Items`, `Blocks.defineBlock` / `Items.defineItem`, per-block model under `mods/ember/assets/ember/models/block/`, hardness, light, stack size, place-as-block |
+| `mods/ember.rg` | `import ModAPI`, `import Blocks`, `import Items`, `import Entities`, `Blocks.defineBlock` / `Items.defineItem` / `Entities.defineEntity`, glow brick, shade mob (zombie.bbmodel + hostile + spawn egg) |
 | `mods/k's-guide/src/mod.rg` | `import ModAPI`, `on_init`, registries for item, block, entity, block entity, item group, screen, event, command, config, resource, texture, particle |
 
 ## Compared with Java

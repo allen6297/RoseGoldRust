@@ -13,6 +13,7 @@ const CHILDREN: &[&str] = &[
     "ModAPI",
     "Blocks",
     "Items",
+    "Entities",
     "io",
     "vec",
     "time",
@@ -227,7 +228,7 @@ pub fn crate_dir(name: &str, from_file: &str) -> Option<PathBuf> {
 /// Single-file TerraLite APIs under `builtin/std/TerraLite/`.
 fn terralite_api_file(root: &Path, child: &str) -> Option<PathBuf> {
     let name = match child {
-        "ModAPI" | "Blocks" | "Items" | "GUIAPI" | "SettingsAPI" => child,
+        "ModAPI" | "Blocks" | "Items" | "Entities" | "GUIAPI" | "SettingsAPI" => child,
         _ => return None,
     };
     let file = root.join("TerraLite").join(format!("{name}.rg"));
@@ -718,6 +719,7 @@ mod tests {
             "ModAPI.rg",
             "Blocks.rg",
             "Items.rg",
+            "Entities.rg",
             "GUIAPI.rg",
             "SettingsAPI.rg",
         ] {
@@ -736,7 +738,7 @@ mod tests {
     #[test]
     fn blocks_and_items_load_from_terralite() {
         let from = r"C:\CODE\TerraLite\mods\ember.rg";
-        for name in ["Blocks", "Items"] {
+        for name in ["Blocks", "Items", "Entities"] {
             let file = crate_dir(name, from).unwrap_or_else(|| panic!("{name}"));
             let bundled = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
                 .join("../../builtin/std/TerraLite")

@@ -583,6 +583,7 @@ fn canonical_hook(module: &str, name: &str) -> Option<&'static str> {
         ("events", "loot") => Some("loot"),
         ("events", "entity_spawn") => Some("entity_spawn"),
         ("events", "entity_hurt") => Some("entity_hurt"),
+        ("events", "entity_death") => Some("entity_death"),
         ("events", "entity_tick") => Some("entity_tick"),
         ("events", "use_item") => Some("use_item"),
         ("events", "use_block") => Some("use_block"),
@@ -631,6 +632,7 @@ fn host_arity(module: &str, name: &str) -> Option<usize> {
         ("modapi", "note" | "registry") => Some(1),
         ("chat", "say") => Some(1),
         ("settings", "value") => Some(1),
+        ("entity", "spawn" | "despawn") => Some(4),
         _ => None,
     }
 }
@@ -3059,6 +3061,9 @@ impl Interp {
         if module == "entity" && (name == "spawn" || name == "despawn") {
             return self.entity_body(name, args, line, col);
         }
+        if module == "entity" && name == "hostile" {
+            return self.attach_flag(module, name, &args, line, col);
+        }
         if module == "block" && name == "hardness" {
             return self.attach_number(module, name, &args, line, col);
         }
@@ -3092,11 +3097,16 @@ impl Interp {
         }
         if (module == "block" && (name == "texture" || name == "model"))
             || (module == "item" && name == "places")
+            || (module == "entity" && (name == "model" || name == "spawn_egg"))
             || (module == "recipe"
                 && (name == "register" || name == "shapeless" || name == "shaped"))
         {
             let kind = if module == "recipe" && name == "register" {
                 "recipe"
+            } else if module == "entity" && name == "model" {
+                "entity_model"
+            } else if module == "entity" && name == "spawn_egg" {
+                "spawn_egg"
             } else {
                 name
             };
@@ -3105,6 +3115,40 @@ impl Interp {
             return Ok(Value::Bool(true));
         }
         Err(self.runtime(&format!("unknown function {module}.{name}"), line, col))
+    }
+
+    /// `entity.hostile(id, flag)` stores `"1"` or `"0"`.
+    fn attach_flag(
+        &mut self,
+        module: &str,
+        name: &str,
+        args: &[Value],
+        line: u32,
+        col: u32,
+    ) -> Result<Value, Halt> {
+        if args.len() != 2 {
+            return Err(self.runtime(&format!("{module}.{name} takes 2 arguments"), line, col));
+        }
+        let Value::String(id) = &args[0] else {
+            return Err(self.runtime(
+                &format!("{module}.{name} expects String, Bool"),
+                line,
+                col,
+            ));
+        };
+        let Value::Bool(flag) = &args[1] else {
+            return Err(self.runtime(
+                &format!("{module}.{name} expects String, Bool"),
+                line,
+                col,
+            ));
+        };
+        self.attachments.push((
+            name.to_string(),
+            id.clone(),
+            if *flag { "1".into() } else { "0".into() },
+        ));
+        Ok(Value::Bool(true))
     }
 
     /// `block.hardness`, `block.light`, and `item.stack` store a number as text.
@@ -3175,7 +3219,8 @@ impl Interp {
 
     /// `entity.spawn` and `entity.despawn` are `fn(id, x, y, z): Bool`.
     /// False means this script never registered `id`, the cell is already taken,
-    /// or no spawned body stood there.
+    /// or no spawned body stood there. Inside a hook the host places or removes
+    /// the live body; during `main` / `on_init` the session records it for load.
     fn entity_body(
         &mut self,
         name: &str,
@@ -3214,6 +3259,9 @@ impl Interp {
                 col,
             ));
         };
+        if self.host.is_some() {
+            return self.call_host("entity", name, args, line, col);
+        }
         let known = self.registrations.iter().any(|(kind, namespace, path)| {
             kind == "entity" && format!("{namespace}:{path}") == *id
         });

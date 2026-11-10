@@ -2,7 +2,7 @@
 // open records the registry. register stores real content.
 // modapi.note, modapi.registry, and modapi.content are the host calls Terralite records.
 // Lives at builtin/std/TerraLite/ModAPI.rg (same folder as GUIAPI and SettingsAPI).
-// Block and item helpers live in Blocks.rg and Items.rg (import Blocks / Items).
+// Block, item, and entity helpers live in Blocks.rg / Items.rg / Entities.rg.
 class TLRegistry {
     var kind: String = "";
 

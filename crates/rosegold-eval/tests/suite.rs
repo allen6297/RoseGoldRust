@@ -291,6 +291,37 @@ fn main(): Int {
 }
 
 #[test]
+fn entity_model_hostile_and_egg_are_recorded() {
+    let source = r#"
+fn main(): Int {
+    entity.register("ember", "shade");
+    entity.model("ember:shade", "assets/terralite/models/entity/zombie.bbmodel");
+    entity.hostile("ember:shade", true);
+    item.register("ember", "shade_egg");
+    entity.spawn_egg("ember:shade", "ember:shade_egg");
+    entity.spawn("ember:shade", 14, 1, 12);
+    return 0;
+}
+"#;
+    let session = Session::load(source, "entity-attach.rg", None).expect("script loads");
+    assert!(session.attachments().iter().any(|(kind, id, value)| {
+        kind == "entity_model"
+            && id == "ember:shade"
+            && value.ends_with("zombie.bbmodel")
+    }));
+    assert!(session.attachments().iter().any(|(kind, id, value)| {
+        kind == "hostile" && id == "ember:shade" && value == "1"
+    }));
+    assert!(session.attachments().iter().any(|(kind, id, value)| {
+        kind == "spawn_egg" && id == "ember:shade" && value == "ember:shade_egg"
+    }));
+    assert!(session
+        .spawns()
+        .iter()
+        .any(|(id, x, y, z)| id == "ember:shade" && *x == 14 && *y == 1 && *z == 12));
+}
+
+#[test]
 fn fail_files_contain_expect() {
     let _cwd = cwd_lock();
     let root = java_root();
