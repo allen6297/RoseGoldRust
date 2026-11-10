@@ -117,6 +117,16 @@ class TLRegister {
     fn shaped(result: String, grid: String) {
         recipe.shaped(result, grid);
     }
+
+    /// Block-break loot. `list` is `a(+b…)` — every id drops once.
+    fn blockLoot(block: String, list: String) {
+        loot.block(block, list);
+    }
+
+    /// Chest table override. `table` is `camp_chest` / `mine_chest` / …; `list` replaces `drops`.
+    fn chestLoot(table: String, list: String) {
+        loot.chest(table, list);
+    }
 }
 
 fn registry(kind: String): TLRegistry {

@@ -2030,6 +2030,10 @@ impl<'a> TypeChecker<'a> {
                 "register" | "shapeless" | "shaped" => self.check_arity(&label, 2, n, line, col),
                 _ => miss(self),
             },
+            "loot" => match name {
+                "block" | "chest" => self.check_arity(&label, 2, n, line, col),
+                _ => miss(self),
+            },
             "item" => match name {
                 "register" | "places" | "stack" => self.check_arity(&label, 2, n, line, col),
                 "exists" | "hardness" | "light" | "replaces" | "max_count" => {
@@ -4161,6 +4165,10 @@ fn host_return(module: &str, name: &str) -> String {
         },
         "recipe" => match name {
             "register" | "shapeless" | "shaped" => "Bool".into(),
+            _ => "Void".into(),
+        },
+        "loot" => match name {
+            "block" | "chest" => "Bool".into(),
             _ => "Void".into(),
         },
         "item" => match name {

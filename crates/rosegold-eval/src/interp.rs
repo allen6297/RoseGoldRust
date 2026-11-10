@@ -753,6 +753,7 @@ fn is_host(name: &str) -> bool {
             | "item"
             | "block"
             | "recipe"
+            | "loot"
             | "entity"
             | "block_entity"
             | "modapi"
@@ -2249,6 +2250,7 @@ impl Interp {
         }
         if module == "block"
             || module == "recipe"
+            || module == "loot"
             || module == "entity"
             || (module == "item" && (name == "register" || name == "places" || name == "stack"))
         {
@@ -3118,6 +3120,7 @@ impl Interp {
             || (module == "entity" && (name == "model" || name == "spawn_egg"))
             || (module == "recipe"
                 && (name == "register" || name == "shapeless" || name == "shaped"))
+            || (module == "loot" && (name == "block" || name == "chest"))
         {
             let kind = if module == "recipe" && name == "register" {
                 "recipe"
@@ -3125,6 +3128,10 @@ impl Interp {
                 "entity_model"
             } else if module == "entity" && name == "spawn_egg" {
                 "spawn_egg"
+            } else if module == "loot" && name == "block" {
+                "block_loot"
+            } else if module == "loot" && name == "chest" {
+                "chest_loot"
             } else {
                 name
             };

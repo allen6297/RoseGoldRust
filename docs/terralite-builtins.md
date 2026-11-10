@@ -97,6 +97,8 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 | `recipe.register(result, ingredient)` | One crafting line. Both ids must already exist |
 | `recipe.shapeless(result, ingredients)` | A pile, ids joined with `+`. Order on the grid does not matter |
 | `recipe.shaped(result, grid)` | Nine cells separated by commas, left to right, top to bottom. An empty cell is blank. The shape can sit anywhere on the 3×3 |
+| `loot.block(block, list)` | Break drops for `block`. `list` is `a+b(+c…)`; every id drops once. Overrides datapack `loot/blocks/<id>.json` |
+| `loot.chest(table, list)` | Replaces the `drops` list for a named chest table (`camp_chest`, `mine_chest`, …) |
 | `entity.register(namespace, path)` | A simple mob `namespace:path`. It stands just east of the oak stairs. The same script can register it again |
 | `entity.model(id, path)` | Blockbench `.bbmodel` for that mob (pack or mod assets) |
 | `entity.hostile(id, flag)` | Default chase/attack AI when the host Guest supports it |
