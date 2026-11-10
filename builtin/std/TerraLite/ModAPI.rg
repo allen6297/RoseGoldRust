@@ -28,6 +28,31 @@ class TLMod {
     fn log(message: String) {
         modapi.note(name + ": " + message);
     }
+
+    /// `events.tick` — once a second. `n` starts at 1.
+    fn listenTick(id: String, handler: fn(Int): Void) {
+        events.tick(id, handler);
+    }
+
+    /// `events.entity_tick` — every 50 ms for `"player"`, `"sheep"`, `"pig"`, `"zombie"`.
+    fn listenEntityTick(id: String, handler: fn(String): Void) {
+        events.entity_tick(id, handler);
+    }
+
+    /// `events.use_block` — false consumes the right click on a block.
+    fn listenUseBlock(id: String, handler: fn(String, String, Int, Int, Int): Bool) {
+        events.use_block(id, handler);
+    }
+
+    /// `events.use_item` — false consumes a right click with the held item.
+    fn listenUseItem(id: String, handler: fn(String): Bool) {
+        events.use_item(id, handler);
+    }
+
+    /// `events.use_entity` — false consumes a right click on a mob.
+    fn listenUseEntity(id: String, handler: fn(String, String): Bool) {
+        events.use_entity(id, handler);
+    }
 }
 
 class TLRegister {
@@ -100,11 +125,67 @@ fn createRegister(owner: TLMod): TLRegister {
     };
 }
 
-// Stubs for later entity-style block/item behavior. Nothing implements them yet.
+/// Once-a-second world pulse (`events.tick`). Implement and bridge with `bindTick`.
 trait Tickable {
-    fn tick(delta: Float);
+    /// `n` is the tick count starting at 1.
+    fn onTick(n: Int);
 }
 
+/// Right-click use hooks (`events.use_block` / `use_item` / `use_entity`).
+/// Return false to consume the click (Minecraft cancelable interact).
 trait Interactable {
-    fn interact(player: String, hand: String);
+    /// Coarse hand use when a finer hook is not enough. Default: allow.
+    fn interact(player: String, hand: String): Bool;
+    /// Looking at a block. `item` may be "".
+    fn onUseBlock(item: String, block: String, x: Int, y: Int, z: Int): Bool;
+    /// Item-only / air click after block hooks pass.
+    fn onUseItem(item: String): Bool;
+    /// Looking at a mob (`zombie`, `ember:shade`, …).
+    fn onUseEntity(item: String, kind: String): Bool;
+}
+
+/// No-op base for `Tickable`. Override `onTick`.
+class TickBehavior impl Tickable {
+    fn onTick(n: Int) {
+    }
+}
+
+/// No-op base for `Interactable`. Override the use hooks you need.
+class UseBehavior impl Interactable {
+    fn interact(player: String, hand: String): Bool {
+        return true;
+    }
+
+    fn onUseBlock(item: String, block: String, x: Int, y: Int, z: Int): Bool {
+        return true;
+    }
+
+    fn onUseItem(item: String): Bool {
+        return true;
+    }
+
+    fn onUseEntity(item: String, kind: String): Bool {
+        return true;
+    }
+}
+
+/// Wire a free function to `events.tick` (same as `TLMod.listenTick`).
+fn bindTick(id: String, handler: fn(Int): Void) {
+    events.tick(id, handler);
+}
+
+fn bindEntityTick(id: String, handler: fn(String): Void) {
+    events.entity_tick(id, handler);
+}
+
+fn bindUseBlock(id: String, handler: fn(String, String, Int, Int, Int): Bool) {
+    events.use_block(id, handler);
+}
+
+fn bindUseItem(id: String, handler: fn(String): Bool) {
+    events.use_item(id, handler);
+}
+
+fn bindUseEntity(id: String, handler: fn(String, String): Bool) {
+    events.use_entity(id, handler);
 }

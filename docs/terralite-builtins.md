@@ -106,7 +106,7 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 - `import Blocks` resolves to `builtin/std/TerraLite/Blocks.rg`. `Blocks.defineBlock(namespace, path, model, texture, seconds, glow)` registers a block, applies those fields when non-empty / positive, and returns a `Block` with a filled `BlockProperties` bag (`.id` is the registered id). Also `Blocks.texture` / `model` / `hardness` / `light`.
 - `import Items` resolves to `builtin/std/TerraLite/Items.rg`. `Items.defineItem(namespace, path, places, count)` registers an item, optionally places a block, optionally sets stack size (`count` 0 keeps 64), and returns an `Item` with a filled `ItemProperties` bag (`.id` is the registered id). Free `Items.places` / `stack` still forward to the host. An `Item` also has `.places(target)` / `.stack(count)` methods that update its properties and call the host with that item's id.
 - `import Entities` resolves to `builtin/std/TerraLite/Entities.rg`. `Entities.defineEntity(namespace, path, model, egg_path, hostile)` registers a mob, optional Blockbench model, optional spawn-egg item path, and hostile AI flag; returns an `Entity` with `EntityProperties`. Free `Entities.setModel` / `setHostile` / `spawnEgg` / `spawn` / `despawn` / `spawnNear` forward to the host. `spawnNear` needs `player.*` (hook only).
-- `Tickable` / `Interactable` on ModAPI are empty trait stubs for later entity-style hooks.
+- `Tickable` / `Interactable` on ModAPI are real traits: `onTick(n)`, and `interact` / `onUseBlock` / `onUseItem` / `onUseEntity` (false cancels). Defaults: `TickBehavior`, `UseBehavior`. Bind with `ModAPI.bindTick` / `bindUseBlock` / … or `TLMod.listenTick` / `listenUseBlock` (forwards to `events.*`). `mods/ember.rg` implements both.
 - Any other kind calls `modapi.content(kind, namespace, path)`. The kind must be uppercase (`BLOCK_ENTITY`, `SCREEN`, `COMMAND`, …). The namespace and path must be lowercase.
 
 Of those stored entries, the game uses two:
@@ -147,7 +147,7 @@ Std children only the Rust tree has: `std.collections`, `std.helpers`, `std.ModA
 | `mods/field-notes.rg` | `hooks.break_speed`, `hooks.on_select`, `hooks.after_break`, `world.slot`, `world.count`, `world.block`, `world.write` |
 | `mods/red-wool.rg` | `events.placed`, `events.break_drop`, `events.pickup_item`, `world.get_block`, `world.get_meta`, `world.set_meta`, `player.held`, `world.has_time`, `world.is_day`, `world.season`, `player.present`, `player.x`, `item.exists`, `item.max_count` |
 | `mods/rose-kit.rg` | `import helpers`, `block.register`, `block.texture`, `block.model`, `item.register`, `item.places`, `recipe.register`, `recipe.shapeless`, `recipe.shaped`, `entity.register`, `events.placed`, `events.entity_spawn`, `events.entity_hurt`, `events.entity_tick`, `world.set_block` |
-| `mods/ember.rg` | `import ModAPI`, `import Blocks`, `import Items`, `import Entities`, glow brick, shade mob (zombie.bbmodel + hostile + spawn egg); `events.entity_hurt` halves mace damage to `ember:shade` |
+| `mods/ember.rg` | ModAPI `Tickable`/`Interactable` (pulse dirt on tick 2; ember item plants glow_brick), Entities shade + hurt rewrite |
 | `mods/k's-guide/src/mod.rg` | `import ModAPI`, `on_init`, registries for item, block, entity, block entity, item group, screen, event, command, config, resource, texture, particle |
 
 ## Compared with Java
