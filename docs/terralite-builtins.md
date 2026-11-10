@@ -140,17 +140,15 @@ Std children only the Rust tree has: `std.collections`, `std.helpers`, `std.ModA
 
 ### Shipped mods
 
+Live demos under `C:\CODE\TerraLite\mods`:
+
 | File | What it calls |
 | --- | --- |
-| `mods/keep-stone.rg` | `hooks.before_break` |
-| `mods/log-place.rg` | `hooks.after_place` |
-| `mods/log-break.rg` | `hooks.after_break` |
-| `mods/log-player.rg` | `hooks.on_select`, `hooks.on_screen` |
-| `mods/field-notes.rg` | `hooks.break_speed`, `hooks.on_select`, `hooks.after_break`, `world.slot`, `world.count`, `world.block`, `world.write` |
-| `mods/red-wool.rg` | `events.placed`, `events.break_drop`, `events.pickup_item`, `world.get_block`, `world.get_meta`, `world.set_meta`, `player.held`, `world.has_time`, `world.is_day`, `world.season`, `player.present`, `player.x`, `item.exists`, `item.max_count` |
+| `mods/ember.rg` | ModAPI `Tickable`/`Interactable`, Blocks/Items/Entities/BlockEntities/GUIAPI (glow brick charge, ember wand, shade) |
 | `mods/rose-kit.rg` | `import helpers`, `block.register`, `block.texture`, `block.model`, `item.register`, `item.places`, `recipe.register`, `recipe.shapeless`, `recipe.shaped`, `entity.register`, `events.placed`, `events.entity_spawn`, `events.entity_hurt`, `events.entity_tick`, `world.set_block` |
-| `mods/ember.rg` | ModAPI `Tickable`/`Interactable` (pulse dirt on tick 2; ember item plants glow_brick), Entities shade + hurt rewrite |
 | `mods/k's-guide/src/mod.rg` | `import ModAPI`, `on_init`, registries for item, block, entity, block entity, item group, screen, event, command, config, resource, texture, particle |
+
+Hook-probe scripts (keep-stone, log-*, red-wool, use-wand, etc.) live under `C:\CODE\TerraLite\crates\world\testdata\hook_mods` for unit tests and are not loaded at runtime.
 
 ## Compared with Java
 
