@@ -1987,26 +1987,29 @@ impl<'a> TypeChecker<'a> {
             },
             "__ui" => self.check_ui(name, n, line, col, &label),
             "hooks" => match name {
-                "before_break" | "before_place" | "after_break" | "after_place" | "on_select"
-                | "on_screen" | "break_speed" => self.check_arity(&label, 2, n, line, col),
-                _ => miss(self),
-            },
-            "events" => match name {
-                "break" | "place" | "break_block" | "place_block" | "broken" | "placed"
-                | "select_slot" | "open_screen" | "break_speed" | "pickup_item" | "break_drop"
-                | "loot" | "entity_spawn" | "entity_hurt" | "entity_death" | "entity_tick"
-                | "use_item" | "use_block" | "use_entity" | "attack" | "chat" | "respawn" | "craft"
-                | "smelt" | "repair" | "enchant" | "brew" | "smith" | "weave" | "tick" | "dawn"
-                | "dusk" | "jump" | "sprint" | "land" | "command" => {
+                "before_break" | "before_place" | "after_break" | "after_place" | "fill_place"
+                | "fill_remove" | "on_select" | "on_screen" | "break_speed" => {
                     self.check_arity(&label, 2, n, line, col)
                 }
                 _ => miss(self),
             },
+            "events" => match name {
+                "break" | "place" | "break_block" | "place_block" | "broken" | "placed"
+                | "fill_place" | "fill_remove" | "select_slot" | "open_screen" | "break_speed"
+                | "pickup_item" | "break_drop" | "loot" | "entity_spawn" | "entity_hurt"
+                | "entity_death" | "entity_tick" | "use_item" | "use_block" | "use_entity"
+                | "attack" | "chat" | "respawn" | "craft" | "smelt" | "repair" | "enchant"
+                | "brew" | "smith" | "weave" | "tick" | "dawn" | "dusk" | "jump" | "sprint"
+                | "land" | "command" => self.check_arity(&label, 2, n, line, col),
+                _ => miss(self),
+            },
             "world" => match name {
-                "block" | "get_block" | "get_meta" | "is_air" => {
+                "block" | "get_block" | "get_meta" | "get_fill" | "is_air" | "is_compound" => {
                     self.check_arity(&label, 3, n, line, col)
                 }
-                "write" | "set_block" | "set_meta" => self.check_arity(&label, 4, n, line, col),
+                "write" | "set_block" | "set_meta" | "set_fill" => {
+                    self.check_arity(&label, 4, n, line, col)
+                }
                 "hardness" | "light" | "replaces" | "slot" | "count" => {
                     self.check_arity(&label, 1, n, line, col)
                 }
@@ -4143,8 +4146,9 @@ fn host_return(module: &str, name: &str) -> String {
         "world" => match name {
             "hardness" | "time_of_day" => "Float".into(),
             "light" | "count" | "get_meta" => "Int".into(),
-            "write" | "set_block" | "set_meta" | "is_air" | "is_day" | "has_time" => "Bool".into(),
-            "block" | "get_block" | "replaces" | "slot" | "season" => "String".into(),
+            "write" | "set_block" | "set_meta" | "set_fill" | "is_air" | "is_compound"
+            | "is_day" | "has_time" => "Bool".into(),
+            "block" | "get_block" | "get_fill" | "replaces" | "slot" | "season" => "String".into(),
             _ => "Void".into(),
         },
         "player" => match name {

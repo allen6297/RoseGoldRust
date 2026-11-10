@@ -575,6 +575,8 @@ fn canonical_hook(module: &str, name: &str) -> Option<&'static str> {
         }
         ("hooks", "after_break") | ("events", "broken") => Some("after_break"),
         ("hooks", "after_place") | ("events", "placed") => Some("after_place"),
+        ("hooks", "fill_place") | ("events", "fill_place") => Some("fill_place"),
+        ("hooks", "fill_remove") | ("events", "fill_remove") => Some("fill_remove"),
         ("hooks", "on_select") | ("events", "select_slot") => Some("on_select"),
         ("hooks", "on_screen") | ("events", "open_screen") => Some("on_screen"),
         ("hooks", "break_speed") | ("events", "break_speed") => Some("break_speed"),
@@ -613,8 +615,8 @@ fn host_arity(module: &str, name: &str) -> Option<usize> {
     match (module, name) {
         ("world", "block" | "get_block") => Some(3),
         ("world", "write" | "set_block") => Some(4),
-        ("world", "set_meta") => Some(4),
-        ("world", "get_meta" | "is_air") => Some(3),
+        ("world", "set_meta" | "set_fill") => Some(4),
+        ("world", "get_meta" | "get_fill" | "is_air" | "is_compound") => Some(3),
         (
             "world",
             "hardness" | "light" | "replaces" | "slot" | "count" | "time_of_day" | "is_day"

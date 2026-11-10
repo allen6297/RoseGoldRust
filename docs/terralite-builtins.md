@@ -23,6 +23,8 @@ Register with `hooks.<name>(id, fn)` or the Fabric-style `events.<name>(id, fn)`
 | `before_place` | `hooks.before_place` | `events.place_block` | `fn(item: String, x: Int, y: Int, z: Int): Bool` | `false` cancels |
 | `after_break` | `hooks.after_break` | `events.broken` | `fn(block: String, x, y, z, left: String)` | no |
 | `after_place` | `hooks.after_place` | `events.placed` | `fn(item: String, x, y, z)` | no |
+| `fill_place` | `hooks.fill_place` | `events.fill_place` | `fn(kind: String, x, y, z)` | no — after water/ember enters a host |
+| `fill_remove` | `hooks.fill_remove` | `events.fill_remove` | `fn(kind: String, x, y, z)` | no — after fill leaves a host |
 | `on_select` | `hooks.on_select` | `events.select_slot` | `fn(slot: Int, item: String)` | no |
 | `on_screen` | `hooks.on_screen` | `events.open_screen` | `fn(screen: String, open: Bool)` | no |
 | `break_speed` | `hooks.break_speed` | `events.break_speed` | `fn(block: String): Float` | scale, not cancel |
@@ -51,6 +53,9 @@ These names are the ones `crates/rosegold` forwards. The game answers them in `c
 | `world.is_air(x, y, z)` | True only when the cell is in bounds and air |
 | `world.get_meta(x, y, z)` | Metadata nibble, or `0` outside |
 | `world.set_meta(x, y, z, meta)` | Writes `0..=15` on a non-air in-bounds cell |
+| `world.get_fill(x, y, z)` | Compound fill kind (`water` / `ember`), or `""` when empty / outside |
+| `world.set_fill(x, y, z, kind)` | Bool. Sets `water` / `ember` on a compound host, or clears with `""` / `none` |
+| `world.is_compound(x, y, z)` | True when the solid can hold a compound fill |
 | `world.write` / `world.set_block(x, y, z, id)` | Bool. `"air"` clears. An unknown id returns false and does not write |
 | `world.hardness(id)` / `item.hardness(id)` | Seconds as a float. Missing is `0`. Lookup is metadata `0` |
 | `world.light(id)` / `item.light(id)` | Light level as an int. Missing is `0` |

@@ -740,6 +740,19 @@ mod tests {
     }
 
     #[test]
+    fn ember_mod_typechecks() {
+        let path = PathBuf::from(r"C:\CODE\TerraLite\mods\ember.rg");
+        let source = std::fs::read_to_string(&path).expect("ember.rg");
+        let diags = crate::check_source(&source, &path.display().to_string());
+        let errors: Vec<_> = diags
+            .iter()
+            .filter(|d| d.severity == "error")
+            .map(|d| format!("{}:{} {}", d.line, d.col, d.message))
+            .collect();
+        assert!(errors.is_empty(), "{}", errors.join("\n"));
+    }
+
+    #[test]
     fn blocks_and_items_load_from_terralite() {
         let from = r"C:\CODE\TerraLite\mods\ember.rg";
         for name in ["Blocks", "Items", "Entities", "BlockEntities"] {

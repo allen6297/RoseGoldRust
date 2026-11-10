@@ -53,6 +53,16 @@ class TLMod {
     fn listenUseEntity(id: String, handler: fn(String, String): Bool) {
         events.use_entity(id, handler);
     }
+
+    /// `events.fill_place` — compound fill (`water` / `ember`) entered a host.
+    fn listenFillPlace(id: String, handler: fn(String, Int, Int, Int): Void) {
+        events.fill_place(id, handler);
+    }
+
+    /// `events.fill_remove` — compound fill left a host.
+    fn listenFillRemove(id: String, handler: fn(String, Int, Int, Int): Void) {
+        events.fill_remove(id, handler);
+    }
 }
 
 class TLRegister {
