@@ -107,6 +107,16 @@ class TLRegister {
     fn recipe(result: String, ingredient: String) {
         recipe.register(result, ingredient);
     }
+
+    /// Shapeless pile. `list` is `a+b(+c…)` — same as `recipe.shapeless`.
+    fn shapeless(result: String, list: String) {
+        recipe.shapeless(result, list);
+    }
+
+    /// Shaped 3×3. `grid` is nine comma-separated cells, blanks empty.
+    fn shaped(result: String, grid: String) {
+        recipe.shaped(result, grid);
+    }
 }
 
 fn registry(kind: String): TLRegistry {
