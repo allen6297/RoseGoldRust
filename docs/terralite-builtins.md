@@ -29,7 +29,7 @@ Register with `hooks.<name>(id, fn)` or the Fabric-style `events.<name>(id, fn)`
 | `pickup_item` | none | `events.pickup_item` | `fn(item: String): Bool` | `false` leaves the drop |
 | `break_drop` | none | `events.break_drop` | `fn(block: String, left: String): String` | `""` drops nothing |
 | `entity_spawn` | none | `events.entity_spawn` | `fn(kind: String, x, y, z): Bool` | `false` cancels |
-| `entity_hurt` | none | `events.entity_hurt` | `fn(kind: String, amount: Int): Bool` | `false` cancels |
+| `entity_hurt` | none | `events.entity_hurt` | `fn(kind: String, amount: Int): Bool\|Int` | `false` or `0` cancels; an `Int` rewrites damage |
 | `entity_death` | none | `events.entity_death` | `fn(kind: String, x, y, z): Bool` | `false` cancels despawn/loot side effects when the host asks |
 | `entity_tick` | none | `events.entity_tick` | `fn(kind: String)` | no |
 
@@ -39,7 +39,7 @@ A hook that throws cancels break, place, pickup, and hurt. After-hooks, select, 
 
 Rust `Hooks` run before script hooks. One cancel is enough. After-break and after-place run only when the cell changes. Air, a cell outside the world, and a refused place do not call hooks.
 
-`entity_spawn` runs for `"player"` on join, then `"pig"` at `(5, 1, 9)` and `"zombie"` at `(11, 1, 13)`. The client and the server both do this. `entity_tick` runs every 50 ms, at most 20 steps per catch-up, for `"player"`, `"sheep"`, `"pig"`, and `"zombie"`. `entity_hurt` runs for the player on a fall of four blocks or more, and from one other client hit path. Comments in `ScriptTable::entity_spawn`, `entity_hurt`, and `entity_tick` say the engine does not call hurt and tick. Those comments are stale.
+`entity_spawn` runs for `"player"` on join, then `"pig"` at `(5, 1, 9)` and `"zombie"` at `(11, 1, 13)`. The client and the server both do this. `entity_tick` runs every 50 ms, at most 20 steps per catch-up, for `"player"`, `"sheep"`, `"pig"`, and `"zombie"`. `entity_hurt` runs for player damage (fall, cactus, magma, hunger, crystal, mob bites) and for mace/wolf hits on `"zombie"`, `"breeze"`, and script Guests (e.g. `ember:shade`). Hooks may return `false` / `0` to cancel or an `Int` to rewrite the amount.
 
 ### Queries inside a hook
 
@@ -147,7 +147,7 @@ Std children only the Rust tree has: `std.collections`, `std.helpers`, `std.ModA
 | `mods/field-notes.rg` | `hooks.break_speed`, `hooks.on_select`, `hooks.after_break`, `world.slot`, `world.count`, `world.block`, `world.write` |
 | `mods/red-wool.rg` | `events.placed`, `events.break_drop`, `events.pickup_item`, `world.get_block`, `world.get_meta`, `world.set_meta`, `player.held`, `world.has_time`, `world.is_day`, `world.season`, `player.present`, `player.x`, `item.exists`, `item.max_count` |
 | `mods/rose-kit.rg` | `import helpers`, `block.register`, `block.texture`, `block.model`, `item.register`, `item.places`, `recipe.register`, `recipe.shapeless`, `recipe.shaped`, `entity.register`, `events.placed`, `events.entity_spawn`, `events.entity_hurt`, `events.entity_tick`, `world.set_block` |
-| `mods/ember.rg` | `import ModAPI`, `import Blocks`, `import Items`, `import Entities`, `Blocks.defineBlock` / `Items.defineItem` / `Entities.defineEntity`, glow brick, shade mob (zombie.bbmodel + hostile + spawn egg) |
+| `mods/ember.rg` | `import ModAPI`, `import Blocks`, `import Items`, `import Entities`, glow brick, shade mob (zombie.bbmodel + hostile + spawn egg); `events.entity_hurt` halves mace damage to `ember:shade` |
 | `mods/k's-guide/src/mod.rg` | `import ModAPI`, `on_init`, registries for item, block, entity, block entity, item group, screen, event, command, config, resource, texture, particle |
 
 ## Compared with Java
