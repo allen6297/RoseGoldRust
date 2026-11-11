@@ -34,6 +34,7 @@ Register with `hooks.<name>(id, fn)` or the Fabric-style `events.<name>(id, fn)`
 | `entity_hurt` | none | `events.entity_hurt` | `fn(kind: String, amount: Int): Bool\|Int` | `false` or `0` cancels; an `Int` rewrites damage |
 | `entity_death` | none | `events.entity_death` | `fn(kind: String, x, y, z): Bool` | `false` cancels despawn/loot side effects when the host asks |
 | `entity_tick` | none | `events.entity_tick` | `fn(kind: String)` | no |
+| `structure_discovered` | none | `events.structure_discovered` | `fn(structure: String): Bool` | `false` cancels the built-in tip; `chat.say` still shows |
 
 `hooks.before_place` and `events.place_block` are one list. Both are called with four arguments. Only break keeps two lists: the one-argument `hooks.before_break` and the four-argument `events.break_block`. There is no `hooks.pickup_item`, `hooks.break_drop`, `hooks.entity_spawn`, `hooks.entity_hurt`, or `hooks.entity_tick`. Those exist only as `events.*`.
 

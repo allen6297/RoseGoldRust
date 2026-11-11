@@ -225,5 +225,82 @@
     "prefix": "SettingsAPI.value",
     "body": "SettingsAPI.value(\"${1:name}\")",
     "description": "SettingsAPI.value"
+  },
+  "import ModAPI": {
+    "prefix": "ModAPI",
+    "body": [
+      "import ModAPI;",
+      "",
+      "fn on_init() {",
+      "    var Mod: TLMod = ModAPI.createMod(\"${1:name}\", \"${2:1.0.0}\");",
+      "    var Register: TLRegister = ModAPI.createRegister(Mod);",
+      "    Mod.log(\"${3:loaded}\");",
+      "    Register.BLOCK.open();",
+      "    Register.BLOCK.register(\"${4:namespace}\", \"${5:path}\");",
+      "}"
+    ],
+    "description": "import ModAPI"
+  },
+  "import Blocks": {
+    "prefix": "Blocks",
+    "body": "Blocks.defineBlockItem(\"${1:namespace}\", \"${2:block}\", \"${3:item}\", \"${4:model}\", \"${5:texture}\", ${6:1.5}, ${7:0}, ${8:64})",
+    "description": "Blocks.defineBlockItem"
+  },
+  "import Items": {
+    "prefix": "Items",
+    "body": "Items.defineItem(\"${1:namespace}\", \"${2:path}\", \"${3:}\", ${4:64})",
+    "description": "Items.defineItem"
+  },
+  "import Entities": {
+    "prefix": "Entities",
+    "body": "Entities.defineEntity(\"${1:namespace}\", \"${2:path}\", \"${3:model}\", \"${4:egg}\", ${5:false})",
+    "description": "Entities.defineEntity"
+  },
+  "import BlockEntities": {
+    "prefix": "BlockEntities",
+    "body": [
+      "BlockEntities.bind(\"${1:namespace:block}\");",
+      "BlockEntities.setInt(${2:x}, ${3:y}, ${4:z}, \"${5:charge}\", ${6:0});"
+    ],
+    "description": "import BlockEntities"
+  },
+  "events.entity_death": {
+    "prefix": "entity_death",
+    "body": [
+      "fn ${1:on_death}(kind: String, x: Int, y: Int, z: Int): Bool {",
+      "    return ${2:true};",
+      "}",
+      "",
+      "fn main(): Int {",
+      "    events.entity_death(\"${3:id}\", ${1:on_death});",
+      "    return 0;",
+      "}"
+    ],
+    "description": "events.entity_death"
+  },
+  "events.structure_discovered": {
+    "prefix": "structure_discovered",
+    "body": [
+      "fn ${1:on_found}(structure: String): Bool {",
+      "    chat.say(\"discovered \" + structure);",
+      "    return ${2:true};",
+      "}",
+      "",
+      "fn main(): Int {",
+      "    events.structure_discovered(\"${3:id}\", ${1:on_found});",
+      "    return 0;",
+      "}"
+    ],
+    "description": "events.structure_discovered"
+  },
+  "GUIAPI.openNamed": {
+    "prefix": "GUIAPI.openNamed",
+    "body": "GUIAPI.openNamed(\"${1:name}\");",
+    "description": "GUIAPI.openNamed"
+  },
+  "chat.say": {
+    "prefix": "chat.say",
+    "body": "chat.say(\"${1:line}\");",
+    "description": "chat.say"
   }
 }

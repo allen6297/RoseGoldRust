@@ -63,6 +63,13 @@ class TLMod {
     fn listenFillRemove(id: String, handler: fn(String, Int, Int, Int): Void) {
         events.fill_remove(id, handler);
     }
+
+    /// `events.structure_discovered` — first approach of a named landmark.
+    /// `structure` is `village`, `ruined_portal`, `desert_temple`, …
+    /// Return false to cancel the built-in tip; `chat.say` lines still show.
+    fn listenStructureDiscovered(id: String, handler: fn(String): Bool) {
+        events.structure_discovered(id, handler);
+    }
 }
 
 class TLRegister {

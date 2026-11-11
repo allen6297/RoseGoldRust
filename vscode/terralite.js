@@ -84,11 +84,35 @@ const MODULES = {
       ),
       entity_hurt: member(
         "events.entity_hurt(id: String, fn)",
-        "Callback fn(kind: String, amount: Int): Bool. False cancels. A fall of four blocks or more calls this for \"player\". This hook cannot write the world."
+        "Callback fn(kind: String, amount: Int): Bool or Int. False or an Int of 0 or less cancels. An Int replaces the amount. True or void keeps it. This hook cannot write the world."
+      ),
+      entity_death: member(
+        "events.entity_death(id: String, fn)",
+        "Callback fn(kind: String, x: Int, y: Int, z: Int): Bool. False cancels despawn and loot. A throw also cancels."
       ),
       entity_tick: member(
         "events.entity_tick(id: String, fn)",
         "Callback fn(kind: String). The client and the server tick \"player\", \"sheep\", \"pig\", and \"zombie\" every 50 ms. This hook cannot write the world."
+      ),
+      tick: member(
+        "events.tick(id: String, fn)",
+        "Callback fn(n: Int). Once a second. n starts at 1. ModAPI.bindTick and TLMod.listenTick register this."
+      ),
+      use_block: member(
+        "events.use_block(id: String, fn)",
+        "Callback fn(item: String, block: String, x: Int, y: Int, z: Int): Bool. False consumes the right click on a block."
+      ),
+      use_item: member(
+        "events.use_item(id: String, fn)",
+        "Callback fn(item: String): Bool. False consumes a right click with the held item."
+      ),
+      use_entity: member(
+        "events.use_entity(id: String, fn)",
+        "Callback fn(item: String, kind: String): Bool. False consumes a right click on a mob."
+      ),
+      structure_discovered: member(
+        "events.structure_discovered(id: String, fn)",
+        "Callback fn(structure: String): Bool. Fires once per named landmark on first approach. False cancels the built-in tip. chat.say lines still show."
       ),
     },
   },
@@ -200,6 +224,10 @@ const MODULES = {
         "item.places(item: String, block: String)",
         "That item places that block from the hotbar."
       ),
+      stack: member(
+        "item.stack(id: String, count: Int): Bool",
+        "Hotbar stack limit, 1 to 64. Default is 64. item.max_count reads it."
+      ),
       exists: member("item.exists(id: String): Bool", "True when the pack contains the item."),
       hardness: member(
         "item.hardness(id: String): Float",
@@ -234,6 +262,14 @@ const MODULES = {
         "block.model(id: String, model: String)",
         "Pack shape or model. The default is cube."
       ),
+      hardness: member(
+        "block.hardness(id: String, seconds: Float): Bool",
+        "Dig time in seconds. Missing stays the pack default."
+      ),
+      light: member(
+        "block.light(id: String, level: Int): Bool",
+        "Block light 0 to 15."
+      ),
     },
   },
   recipe: {
@@ -259,6 +295,23 @@ const MODULES = {
       register: member(
         "entity.register(namespace: String, path: String)",
         "A simple mob namespace:path. It stands just east of the oak stairs. The same script can register it again. ENTITY in TLModAPI is this same mob."
+      ),
+      model: member("entity.model(id: String, path: String): Bool", "Blockbench .bbmodel for that mob."),
+      hostile: member(
+        "entity.hostile(id: String, flag: Bool): Bool",
+        "Default chase and attack when the host supports it."
+      ),
+      spawn_egg: member(
+        "entity.spawn_egg(id: String, item: String): Bool",
+        "Item that spawns this mob on use."
+      ),
+      spawn: member(
+        "entity.spawn(id: String, x: Int, y: Int, z: Int): Bool",
+        "Place a body. During main it is recorded for load. Inside a hook the host places it."
+      ),
+      despawn: member(
+        "entity.despawn(id: String, x: Int, y: Int, z: Int): Bool",
+        "Remove a body at that cell."
       ),
     },
   },
@@ -320,6 +373,30 @@ const MODULES = {
     doc: "The mod object from TLModAPI.createMod.",
     members: {
       log: member("TLMod.log(message: String)", "Calls modapi.note. The game prints rosegold: {message}."),
+      listenTick: member(
+        "TLMod.listenTick(id: String, handler: fn(Int): Void)",
+        "events.tick. Once a second. n starts at 1."
+      ),
+      listenEntityTick: member(
+        "TLMod.listenEntityTick(id: String, handler: fn(String): Void)",
+        "events.entity_tick."
+      ),
+      listenUseBlock: member(
+        "TLMod.listenUseBlock(id: String, handler: fn(String, String, Int, Int, Int): Bool)",
+        "events.use_block. False consumes the right click on a block."
+      ),
+      listenUseItem: member(
+        "TLMod.listenUseItem(id: String, handler: fn(String): Bool)",
+        "events.use_item. False consumes a right click with the held item."
+      ),
+      listenUseEntity: member(
+        "TLMod.listenUseEntity(id: String, handler: fn(String, String): Bool)",
+        "events.use_entity. False consumes a right click on a mob."
+      ),
+      listenStructureDiscovered: member(
+        "TLMod.listenStructureDiscovered(id: String, handler: fn(String): Bool)",
+        "events.structure_discovered. False cancels the built-in tip."
+      ),
     },
   },
   TLRegistry: {
@@ -338,6 +415,9 @@ const MODULES = {
       texture: member("TLRegister.texture(id: String, file: String)", "block.texture."),
       model: member("TLRegister.model(id: String, file: String)", "block.model."),
       places: member("TLRegister.places(held: String, target: String)", "item.places."),
+      hardness: member("TLRegister.hardness(id: String, seconds: Float)", "block.hardness."),
+      light: member("TLRegister.light(id: String, level: Int)", "block.light."),
+      stack: member("TLRegister.stack(id: String, count: Int)", "item.stack. Count is 1 to 64."),
       recipe: member(
         "TLRegister.recipe(result: String, ingredient: String)",
         "recipe.register."
@@ -392,6 +472,38 @@ const MODULES = {
         "GUIAPI.say(line: String): Bool",
         "Queues one chat line. Letters and spaces, at most 32 characters. It does not change the world."
       ),
+      button: member(
+        "GUIAPI.button(name: String, label: String): TextElement",
+        "A button row. font is button."
+      ),
+      heading: member(
+        "GUIAPI.heading(name: String, label: String): TextElement",
+        "A heading row. font is heading."
+      ),
+      icon: member(
+        "GUIAPI.icon(name: String, block: String): TextElement",
+        "A 32 by 32 icon row. font is icon. text is the block id."
+      ),
+      field: member(
+        "GUIAPI.field(name: String, label: String): TextElement",
+        "A field row. font is field."
+      ),
+      read: member(
+        "GUIAPI.read(screen: Screen, name: String): String",
+        "gui.read. The current text of that row."
+      ),
+      place: member(
+        "GUIAPI.place(element: TextElement, at: Vec2): TextElement",
+        "Sets the element position and returns it."
+      ),
+      open: member(
+        "GUIAPI.open(screen: Screen): Bool",
+        "From a hook, open that registered panel. False when the name is unknown."
+      ),
+      openNamed: member(
+        "GUIAPI.openNamed(name: String): Bool",
+        "From a hook, open a registered GUIAPI screen by name. Calls gui.open."
+      ),
       Vec2: type("class Vec2", "x and y are Float."),
       Element: type("abstract class Element", "name, size, and position."),
       TextElement: type(
@@ -427,6 +539,186 @@ const MODULES = {
       SettingsCategory: type("class SettingsCategory", "name and description."),
       SettingsOption: type("class SettingsOption", "name, description, and default."),
       Settings: type("class Settings", "name, description, categories, and options."),
+    },
+  },
+  Blocks: {
+    doc: "import Blocks. Register a block, and optionally the item that places it.",
+    members: {
+      defineBlock: member(
+        "Blocks.defineBlock(namespace: String, path: String, model: String, texture: String, seconds: Float, glow: Int): Block",
+        "Registers the block and applies model, texture, dig time, and glow when set. .id is the registered id."
+      ),
+      defineBlockItem: member(
+        "Blocks.defineBlockItem(namespace: String, block_path: String, item_path: String, model: String, texture: String, seconds: Float, glow: Int, stack: Int): Block",
+        "Registers the block and a placeable item. The two paths must differ. Returns the Block."
+      ),
+      texture: member("Blocks.texture(id: String, file: String)", "block.texture."),
+      model: member("Blocks.model(id: String, file: String)", "block.model."),
+      hardness: member("Blocks.hardness(id: String, seconds: Float)", "block.hardness."),
+      light: member("Blocks.light(id: String, level: Int)", "block.light."),
+      Block: type("class Block", "id, name, description, and properties."),
+      BlockProperties: type("class BlockProperties", "model, texture, hardness, and light."),
+    },
+  },
+  Items: {
+    doc: "import Items. Register an item, optionally the block it places and its stack size.",
+    members: {
+      defineItem: member(
+        "Items.defineItem(namespace: String, path: String, places: String, count: Int): Item",
+        "places may be empty. count 0 keeps 64. .id is the registered id."
+      ),
+      places: member("Items.places(held: String, target: String)", "item.places."),
+      stack: member("Items.stack(id: String, count: Int)", "item.stack. Count is 1 to 64."),
+      Item: type("class Item", "id, name, description, and properties. Methods places and stack."),
+      ItemProperties: type("class ItemProperties", "model, texture, stack_size, and placeable."),
+    },
+  },
+  Entities: {
+    doc: "import Entities. Register a mob, its model, spawn egg, and whether it is hostile.",
+    members: {
+      defineEntity: member(
+        "Entities.defineEntity(namespace: String, path: String, model: String, egg_path: String, hostile: Bool): Entity",
+        "model and egg_path may be empty. Returns the Entity. .id is the registered id."
+      ),
+      setModel: member("Entities.setModel(id: String, path: String)", "entity.model."),
+      setHostile: member("Entities.setHostile(id: String, flag: Bool)", "entity.hostile."),
+      spawnEgg: member("Entities.spawnEgg(id: String, item_id: String)", "entity.spawn_egg."),
+      spawn: member("Entities.spawn(id: String, x: Int, y: Int, z: Int): Bool", "entity.spawn."),
+      despawn: member("Entities.despawn(id: String, x: Int, y: Int, z: Int): Bool", "entity.despawn."),
+      spawnNear: member(
+        "Entities.spawnNear(id: String, dx: Int, dy: Int, dz: Int): Bool",
+        "Spawns at the player's cell plus the offset. Hook only."
+      ),
+      Entity: type("class Entity", "id, name, description, and properties. Methods setModel, setHostile, spawnEgg, spawn, despawn, spawnNear."),
+      EntityProperties: type("class EntityProperties", "model, spawn_egg, and hostile."),
+    },
+  },
+  BlockEntities: {
+    doc: "import BlockEntities. Per-cell fields on a block marked with bind. get and set need a hook.",
+    members: {
+      bind: member(
+        "BlockEntities.bind(block_id: String): BlockEntity",
+        "Marks that block id as a script tile."
+      ),
+      get: member(
+        "BlockEntities.get(x: Int, y: Int, z: Int, key: String): String",
+        "block_entity.get."
+      ),
+      set: member(
+        "BlockEntities.set(x: Int, y: Int, z: Int, key: String, value: String): Bool",
+        "block_entity.set."
+      ),
+      getInt: member(
+        "BlockEntities.getInt(x: Int, y: Int, z: Int, key: String): Int",
+        "block_entity.get_int."
+      ),
+      setInt: member(
+        "BlockEntities.setInt(x: Int, y: Int, z: Int, key: String, n: Int): Bool",
+        "block_entity.set_int."
+      ),
+      has: member("BlockEntities.has(x: Int, y: Int, z: Int): Bool", "block_entity.has."),
+      clear: member("BlockEntities.clear(x: Int, y: Int, z: Int): Bool", "block_entity.clear."),
+      openScreen: member(
+        "BlockEntities.openScreen(name: String): Bool",
+        "gui.open. False when that screen was never built."
+      ),
+      BlockEntity: type("class BlockEntity", "block_id, plus get, set, getInt, setInt, has, clear, and openScreen."),
+    },
+  },
+  ModAPI: {
+    doc: "import ModAPI. Fabric-style entry. on_init runs after main when the script defines it.",
+    members: {
+      createMod: member(
+        "ModAPI.createMod(name: String, version: String): TLMod",
+        "Builds the mod. TLMod.log records a note."
+      ),
+      createRegister: member(
+        "ModAPI.createRegister(owner: TLMod): TLRegister",
+        "Builds the registries. BLOCK and ITEM register real content. Other kinds call modapi.content."
+      ),
+      bindTick: member("ModAPI.bindTick(id: String, handler: fn(Int): Void)", "events.tick."),
+      bindEntityTick: member(
+        "ModAPI.bindEntityTick(id: String, handler: fn(String): Void)",
+        "events.entity_tick."
+      ),
+      bindUseBlock: member(
+        "ModAPI.bindUseBlock(id: String, handler: fn(String, String, Int, Int, Int): Bool)",
+        "events.use_block."
+      ),
+      bindUseItem: member(
+        "ModAPI.bindUseItem(id: String, handler: fn(String): Bool)",
+        "events.use_item."
+      ),
+      bindUseEntity: member(
+        "ModAPI.bindUseEntity(id: String, handler: fn(String, String): Bool)",
+        "events.use_entity."
+      ),
+      Tickable: type("trait Tickable", "onTick(n: Int)."),
+      Interactable: type(
+        "trait Interactable",
+        "interact, onUseBlock, onUseItem, and onUseEntity. False consumes the click."
+      ),
+      TickBehavior: type("class TickBehavior impl Tickable", "No-op onTick."),
+      UseBehavior: type("class UseBehavior impl Interactable", "No-op use hooks. Each returns true."),
+      TLMod: type("class TLMod", "name, version, log, and the listen hooks."),
+      TLRegistry: type("class TLRegistry", "kind, open, and register."),
+      TLRegister: type("class TLRegister", "The BLOCK, ITEM, ENTITY, BLOCK_ENTITY, and SCREEN registries."),
+    },
+  },
+  chat: {
+    doc: "One chat line. It does not change the world.",
+    members: {
+      say: member(
+        "chat.say(line: String): Bool",
+        "Queues one chat line. Letters and spaces, at most 32 characters."
+      ),
+    },
+  },
+  block_entity: {
+    doc: "Per-cell string fields on a block id marked with bind. Reads and writes need a hook.",
+    members: {
+      bind: member("block_entity.bind(id: String): Bool", "Marks that block id as a script tile."),
+      get: member(
+        "block_entity.get(x: Int, y: Int, z: Int, key: String): String",
+        "The string stored at that key, or empty."
+      ),
+      set: member(
+        "block_entity.set(x: Int, y: Int, z: Int, key: String, value: String): Bool",
+        "Stores a string on that cell."
+      ),
+      get_int: member(
+        "block_entity.get_int(x: Int, y: Int, z: Int, key: String): Int",
+        "The integer stored at that key."
+      ),
+      set_int: member(
+        "block_entity.set_int(x: Int, y: Int, z: Int, key: String, n: Int): Bool",
+        "Stores an integer on that cell."
+      ),
+      has: member("block_entity.has(x: Int, y: Int, z: Int): Bool", "True when that cell has tile data."),
+      clear: member("block_entity.clear(x: Int, y: Int, z: Int): Bool", "Drops the tile data on that cell."),
+    },
+  },
+  gui: {
+    doc: "The host behind GUIAPI. open shows a screen built with GUIAPI.createScreen.",
+    members: {
+      screen: member(
+        "gui.screen(name: String, w: Float, h: Float, x: Float, y: Float): Bool",
+        "Records a screen. name is a lowercase id."
+      ),
+      element: member(
+        "gui.element(screen: String, name: String, text: String, x: Float, y: Float, w: Float, h: Float, color: Int, font: String, fontSize: Int, fontColor: Int): Bool",
+        "Adds a row. At most 12."
+      ),
+      remove: member("gui.remove(screen: String, name: String): Bool", "Drops that row."),
+      read: member("gui.read(screen: String, name: String): String", "The current text of that row."),
+      press: member(
+        "gui.press(screen: String, key: String, pressed: fn(String): Void)",
+        "key is one lowercase letter. Enter or a click calls pressed with the row name."
+      ),
+      open: member(
+        "gui.open(name: String): Bool",
+        "From a hook, open that registered panel. False when the name is unknown."
+      ),
     },
   },
 };
@@ -504,6 +796,11 @@ function complete(prefix) {
       { label: "TLModAPI", kind: "module", detail: "import TLModAPI", doc: MODULES.TLModAPI.doc },
       { label: "GUIAPI", kind: "module", detail: "import GUIAPI", doc: MODULES.GUIAPI.doc },
       { label: "SettingsAPI", kind: "module", detail: "import SettingsAPI", doc: MODULES.SettingsAPI.doc },
+      { label: "ModAPI", kind: "module", detail: "import ModAPI", doc: MODULES.ModAPI.doc },
+      { label: "Blocks", kind: "module", detail: "import Blocks", doc: MODULES.Blocks.doc },
+      { label: "Items", kind: "module", detail: "import Items", doc: MODULES.Items.doc },
+      { label: "Entities", kind: "module", detail: "import Entities", doc: MODULES.Entities.doc },
+      { label: "BlockEntities", kind: "module", detail: "import BlockEntities", doc: MODULES.BlockEntities.doc },
     ];
   }
   if (endsWithDot(prefix)) {

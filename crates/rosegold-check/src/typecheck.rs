@@ -2000,7 +2000,9 @@ impl<'a> TypeChecker<'a> {
                 | "entity_death" | "entity_tick" | "use_item" | "use_block" | "use_entity"
                 | "attack" | "chat" | "respawn" | "craft" | "smelt" | "repair" | "enchant"
                 | "brew" | "smith" | "weave" | "tick" | "dawn" | "dusk" | "jump" | "sprint"
-                | "land" | "command" => self.check_arity(&label, 2, n, line, col),
+                | "land" | "command" | "structure_discovered" => {
+                    self.check_arity(&label, 2, n, line, col)
+                }
                 _ => miss(self),
             },
             "world" => match name {

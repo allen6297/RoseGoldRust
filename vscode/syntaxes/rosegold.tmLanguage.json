@@ -107,7 +107,7 @@
       "match": "\\b(Int|Float|String|Bool|Void|Array|Map|Range|UUID|Vec2|Vec3|Window|Color)\\b"
     },
     "terralite-call": {
-      "match": "\\b(hooks)\\.(before_break|before_place|after_break|after_place|on_select|on_screen|break_speed)\\b|\\b(events)\\.(break_block|place_block|broken|placed|select_slot|open_screen|break_speed|pickup_item|break_drop|entity_spawn|entity_hurt|entity_tick)\\b|\\b(world)\\.(block|get_block|is_air|get_meta|set_meta|write|set_block|hardness|light|replaces|slot|count|time_of_day|is_day|season|has_time)\\b|\\b(player)\\.(stack|count|held|selected|present|x|y|z)\\b|\\b(item)\\.(register|places|exists|hardness|light|replaces|max_count)\\b|\\b(block)\\.(register|texture|model)\\b|\\b(recipe)\\.(register|shapeless|shaped)\\b|\\b(entity)\\.(register)\\b|\\b(modapi)\\.(note|registry|content)\\b|\\b(helpers)\\.(id|same_id|holding|block_at|air|replace_block|stack_at_least)\\b|\\b(TLModAPI)\\.(createMod|createRegister)\\b|\\b(TLMod)\\.(log)\\b|\\b(TLRegistry)\\.(open|register)\\b|\\b(TLRegister)\\.(texture|model|places|recipe|ITEM|BLOCK|ENTITY|BLOCK_ENTITY|ITEM_GROUP|SCREEN|EVENT|COMMAND|CONFIG|RESOURCE|TEXTURE|PARTICLE)\\b|\\b(GUIAPI)\\.(vec|color_bits|text|at_rest|createScreen|addElement|removeElement|on_press|say|Vec2|TextElement|Element|Screen)\\b|\\b(SettingsAPI)\\.(createCategory|createOption|choices|on_change|value|SettingsCategory|SettingsOption|Settings)\\b",
+      "match": "\\b(hooks)\\.(before_break|before_place|after_break|after_place|on_select|on_screen|break_speed)\\b|\\b(events)\\.(break_block|place_block|broken|placed|select_slot|open_screen|break_speed|pickup_item|break_drop|entity_spawn|entity_hurt|entity_death|entity_tick|tick|use_block|use_item|use_entity|structure_discovered)\\b|\\b(world)\\.(block|get_block|is_air|get_meta|set_meta|write|set_block|hardness|light|replaces|slot|count|time_of_day|is_day|season|has_time)\\b|\\b(player)\\.(stack|count|held|selected|present|x|y|z)\\b|\\b(item)\\.(register|places|stack|exists|hardness|light|replaces|max_count)\\b|\\b(block)\\.(register|texture|model|hardness|light)\\b|\\b(recipe)\\.(register|shapeless|shaped)\\b|\\b(entity)\\.(register|model|hostile|spawn_egg|spawn|despawn)\\b|\\b(modapi)\\.(note|registry|content)\\b|\\b(helpers)\\.(id|same_id|holding|block_at|air|replace_block|stack_at_least)\\b|\\b(TLModAPI)\\.(createMod|createRegister)\\b|\\b(TLMod)\\.(log|listenTick|listenEntityTick|listenUseBlock|listenUseItem|listenUseEntity|listenStructureDiscovered|listenFillPlace|listenFillRemove)\\b|\\b(TLRegistry)\\.(open|register)\\b|\\b(TLRegister)\\.(texture|model|places|hardness|light|stack|recipe|ITEM|BLOCK|ENTITY|BLOCK_ENTITY|ITEM_GROUP|SCREEN|EVENT|COMMAND|CONFIG|RESOURCE|TEXTURE|PARTICLE)\\b|\\b(GUIAPI)\\.(vec|color_bits|text|button|heading|icon|field|read|place|at_rest|createScreen|addElement|removeElement|on_press|open|openNamed|say|Vec2|TextElement|Element|Screen|SliderElement|ButtonElement|NineSliceElement|CheckboxElement|DropdownElement)\\b|\\b(SettingsAPI)\\.(createCategory|createOption|choices|on_change|value|SettingsCategory|SettingsOption|Settings)\\b|\\b(Blocks)\\.(defineBlock|defineBlockItem|texture|model|hardness|light|BlockProperties|Block)\\b|\\b(Items)\\.(defineItem|places|stack|ItemProperties|Item)\\b|\\b(Entities)\\.(defineEntity|setModel|setHostile|spawnEgg|spawnNear|spawn|despawn|EntityProperties|Entity)\\b|\\b(BlockEntities)\\.(bind|getInt|setInt|get|set|has|clear|openScreen|BlockEntity)\\b|\\b(ModAPI)\\.(createMod|createRegister|bindTick|bindEntityTick|bindUseBlock|bindUseItem|bindUseEntity|Tickable|Interactable|TickBehavior|UseBehavior|TLMod|TLRegistry|TLRegister)\\b|\\b(chat)\\.(say)\\b|\\b(block_entity)\\.(bind|get_int|set_int|get|set|has|clear)\\b|\\b(gui)\\.(screen|element|remove|read|press|open)\\b",
       "captures": {
         "1": { "name": "support.class.terralite.rosegold" },
         "2": { "name": "support.function.terralite.rosegold" },
@@ -140,12 +140,28 @@
         "29": { "name": "support.class.terralite.rosegold" },
         "30": { "name": "support.function.terralite.rosegold" },
         "31": { "name": "support.class.terralite.rosegold" },
-        "32": { "name": "support.function.terralite.rosegold" }
+        "32": { "name": "support.function.terralite.rosegold" },
+        "33": { "name": "support.class.terralite.rosegold" },
+        "34": { "name": "support.function.terralite.rosegold" },
+        "35": { "name": "support.class.terralite.rosegold" },
+        "36": { "name": "support.function.terralite.rosegold" },
+        "37": { "name": "support.class.terralite.rosegold" },
+        "38": { "name": "support.function.terralite.rosegold" },
+        "39": { "name": "support.class.terralite.rosegold" },
+        "40": { "name": "support.function.terralite.rosegold" },
+        "41": { "name": "support.class.terralite.rosegold" },
+        "42": { "name": "support.function.terralite.rosegold" },
+        "43": { "name": "support.class.terralite.rosegold" },
+        "44": { "name": "support.function.terralite.rosegold" },
+        "45": { "name": "support.class.terralite.rosegold" },
+        "46": { "name": "support.function.terralite.rosegold" },
+        "47": { "name": "support.class.terralite.rosegold" },
+        "48": { "name": "support.function.terralite.rosegold" }
       }
     },
     "terralite-module": {
       "name": "support.class.terralite.rosegold",
-      "match": "\\b(hooks|events|world|player|modapi|helpers|TLModAPI|TLMod|TLRegistry|TLRegister|GUIAPI|SettingsAPI)\\b"
+      "match": "\\b(hooks|events|world|player|modapi|helpers|TLModAPI|TLMod|TLRegistry|TLRegister|GUIAPI|SettingsAPI|ModAPI|Blocks|Items|Entities|BlockEntities)\\b"
     },
     "number": {
       "patterns": [

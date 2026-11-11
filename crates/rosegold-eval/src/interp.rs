@@ -607,6 +607,7 @@ fn canonical_hook(module: &str, name: &str) -> Option<&'static str> {
         ("events", "sprint") => Some("sprint"),
         ("events", "land") => Some("land"),
         ("events", "command") => Some("command"),
+        ("events", "structure_discovered") => Some("structure_discovered"),
         _ => None,
     }
 }
