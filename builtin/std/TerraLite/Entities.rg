@@ -28,6 +28,24 @@ class Entity {
         }
     }
 
+    /// Max hearts for this Guest (`1..=40`). Default 4.
+    fn setHearts(n: Int) {
+        properties.hearts = n;
+        entity.hearts(id, n);
+    }
+
+    /// Aim sphere radius in blocks. Default 0.9.
+    fn setHurtbox(radius: Float) {
+        properties.hurtbox = radius;
+        entity.hurtbox(id, radius);
+    }
+
+    /// Chase step scale when hostile. Default 1.0.
+    fn setSpeed(scale: Float) {
+        properties.speed = scale;
+        entity.speed(id, scale);
+    }
+
     fn spawn(x: Int, y: Int, z: Int): Bool {
         return entity.spawn(id, x, y, z);
     }
@@ -59,6 +77,18 @@ fn spawnEgg(id: String, item_id: String) {
     entity.spawn_egg(id, item_id);
 }
 
+fn setHearts(id: String, n: Int) {
+    entity.hearts(id, n);
+}
+
+fn setHurtbox(id: String, radius: Float) {
+    entity.hurtbox(id, radius);
+}
+
+fn setSpeed(id: String, scale: Float) {
+    entity.speed(id, scale);
+}
+
 fn spawn(id: String, x: Int, y: Int, z: Int): Bool {
     return entity.spawn(id, x, y, z);
 }
@@ -78,6 +108,7 @@ fn spawnNear(id: String, dx: Int, dy: Int, dz: Int): Bool {
 /// Register a mob. model may be "". egg_path may be "" (no creative egg item).
 /// hostile true means chase/attack defaults when the host supports Guest AI.
 /// Returns an Entity whose properties mirror what was sent to the host.
+/// Call setHearts / setHurtbox / setSpeed / loot.entity after for lifecycle attrs.
 fn defineEntity(namespace: String, path: String, model_path: String, egg_path: String, is_hostile: Bool): Entity {
     var id = entity.register(namespace, path);
     var egg_id = "";
@@ -97,6 +128,9 @@ fn defineEntity(namespace: String, path: String, model_path: String, egg_path: S
             model: model_path,
             spawn_egg: egg_id,
             hostile: is_hostile,
+            hearts: 4,
+            hurtbox: 0.9,
+            speed: 1.0,
         },
     };
 }
@@ -105,4 +139,7 @@ class EntityProperties {
     var model: String = "";
     var spawn_egg: String = "";
     var hostile: Bool = false;
+    var hearts: Int = 4;
+    var hurtbox: Float = 0.9;
+    var speed: Float = 1.0;
 }

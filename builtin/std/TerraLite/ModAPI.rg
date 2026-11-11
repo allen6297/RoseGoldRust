@@ -149,6 +149,11 @@ class TLRegister {
     fn chestLoot(table: String, list: String) {
         loot.chest(table, list);
     }
+
+    /// Guest death loot. `list` is `a(+b…)`; every id drops once at the body.
+    fn entityLoot(entity: String, list: String) {
+        loot.entity(entity, list);
+    }
 }
 
 fn registry(kind: String): TLRegistry {

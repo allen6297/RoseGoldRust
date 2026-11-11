@@ -305,6 +305,18 @@ const MODULES = {
         "entity.spawn_egg(id: String, item: String): Bool",
         "Item that spawns this mob on use."
       ),
+      hearts: member(
+        "entity.hearts(id: String, n: Int): Bool",
+        "Guest max hearts (1..=40, default 4)."
+      ),
+      hurtbox: member(
+        "entity.hurtbox(id: String, radius: Float): Bool",
+        "Aim sphere radius in blocks (0.2..=4.0, default 0.9)."
+      ),
+      speed: member(
+        "entity.speed(id: String, scale: Float): Bool",
+        "Hostile chase step scale (0.25..=4.0, default 1.0)."
+      ),
       spawn: member(
         "entity.spawn(id: String, x: Int, y: Int, z: Int): Bool",
         "Place a body. During main it is recorded for load. Inside a hook the host places it."
@@ -583,14 +595,23 @@ const MODULES = {
       setModel: member("Entities.setModel(id: String, path: String)", "entity.model."),
       setHostile: member("Entities.setHostile(id: String, flag: Bool)", "entity.hostile."),
       spawnEgg: member("Entities.spawnEgg(id: String, item_id: String)", "entity.spawn_egg."),
+      setHearts: member("Entities.setHearts(id: String, n: Int)", "entity.hearts."),
+      setHurtbox: member("Entities.setHurtbox(id: String, radius: Float)", "entity.hurtbox."),
+      setSpeed: member("Entities.setSpeed(id: String, scale: Float)", "entity.speed."),
       spawn: member("Entities.spawn(id: String, x: Int, y: Int, z: Int): Bool", "entity.spawn."),
       despawn: member("Entities.despawn(id: String, x: Int, y: Int, z: Int): Bool", "entity.despawn."),
       spawnNear: member(
         "Entities.spawnNear(id: String, dx: Int, dy: Int, dz: Int): Bool",
         "Spawns at the player's cell plus the offset. Hook only."
       ),
-      Entity: type("class Entity", "id, name, description, and properties. Methods setModel, setHostile, spawnEgg, spawn, despawn, spawnNear."),
-      EntityProperties: type("class EntityProperties", "model, spawn_egg, and hostile."),
+      Entity: type(
+        "class Entity",
+        "id, name, description, and properties. Methods setModel, setHostile, spawnEgg, setHearts, setHurtbox, setSpeed, spawn, despawn, spawnNear."
+      ),
+      EntityProperties: type(
+        "class EntityProperties",
+        "model, spawn_egg, hostile, hearts, hurtbox, and speed."
+      ),
     },
   },
   BlockEntities: {

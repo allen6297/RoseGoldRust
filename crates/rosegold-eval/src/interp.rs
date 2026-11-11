@@ -3085,6 +3085,9 @@ impl Interp {
         if module == "entity" && name == "hostile" {
             return self.attach_flag(module, name, &args, line, col);
         }
+        if module == "entity" && (name == "hearts" || name == "hurtbox" || name == "speed") {
+            return self.attach_number(module, name, &args, line, col);
+        }
         if module == "block" && name == "hardness" {
             return self.attach_number(module, name, &args, line, col);
         }
@@ -3126,7 +3129,7 @@ impl Interp {
                     || name == "smelt"
                     || name == "smoke"
                     || name == "blast"))
-            || (module == "loot" && (name == "block" || name == "chest"))
+            || (module == "loot" && (name == "block" || name == "chest" || name == "entity"))
         {
             let kind = if module == "recipe" && name == "register" {
                 "recipe"
@@ -3138,6 +3141,8 @@ impl Interp {
                 "block_loot"
             } else if module == "loot" && name == "chest" {
                 "chest_loot"
+            } else if module == "loot" && name == "entity" {
+                "entity_loot"
             } else {
                 name
             };
@@ -3237,10 +3242,24 @@ impl Interp {
                 col,
             ));
         }
-        let encoded = if name == "hardness" {
-            if value <= 0.0 {
+        let encoded = if name == "hardness" || name == "hurtbox" || name == "speed" {
+            if name == "hardness" && value <= 0.0 {
                 return Err(self.runtime(
                     "block.hardness expects a positive number of seconds",
+                    line,
+                    col,
+                ));
+            }
+            if name == "hurtbox" && !(0.2..=4.0).contains(&value) {
+                return Err(self.runtime(
+                    "entity.hurtbox expects a radius from 0.2 to 4.0",
+                    line,
+                    col,
+                ));
+            }
+            if name == "speed" && !(0.25..=4.0).contains(&value) {
+                return Err(self.runtime(
+                    "entity.speed expects a scale from 0.25 to 4.0",
                     line,
                     col,
                 ));
@@ -3258,6 +3277,13 @@ impl Interp {
             if name == "stack" && !(1..=64).contains(&n) {
                 return Err(self.runtime(
                     "item.stack expects a count from 1 to 64",
+                    line,
+                    col,
+                ));
+            }
+            if name == "hearts" && !(1..=40).contains(&n) {
+                return Err(self.runtime(
+                    "entity.hearts expects a count from 1 to 40",
                     line,
                     col,
                 ));

@@ -2035,7 +2035,7 @@ impl<'a> TypeChecker<'a> {
                 _ => miss(self),
             },
             "loot" => match name {
-                "block" | "chest" => self.check_arity(&label, 2, n, line, col),
+                "block" | "chest" | "entity" => self.check_arity(&label, 2, n, line, col),
                 _ => miss(self),
             },
             "item" => match name {
@@ -2052,9 +2052,8 @@ impl<'a> TypeChecker<'a> {
                 _ => miss(self),
             },
             "entity" => match name {
-                "register" | "model" | "hostile" | "spawn_egg" => {
-                    self.check_arity(&label, 2, n, line, col)
-                }
+                "register" | "model" | "hostile" | "spawn_egg" | "hearts" | "hurtbox"
+                | "speed" => self.check_arity(&label, 2, n, line, col),
                 "spawn" | "despawn" => self.check_arity(&label, 4, n, line, col),
                 _ => miss(self),
             },
@@ -4172,7 +4171,7 @@ fn host_return(module: &str, name: &str) -> String {
             _ => "Void".into(),
         },
         "loot" => match name {
-            "block" | "chest" => "Bool".into(),
+            "block" | "chest" | "entity" => "Bool".into(),
             _ => "Void".into(),
         },
         "item" => match name {
@@ -4189,7 +4188,8 @@ fn host_return(module: &str, name: &str) -> String {
         },
         "entity" => match name {
             "register" => "String".into(),
-            "model" | "hostile" | "spawn_egg" | "spawn" | "despawn" => "Bool".into(),
+            "model" | "hostile" | "spawn_egg" | "hearts" | "hurtbox" | "speed" | "spawn"
+            | "despawn" => "Bool".into(),
             _ => "Void".into(),
         },
         "block_entity" => match name {

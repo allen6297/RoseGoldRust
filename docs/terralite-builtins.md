@@ -103,10 +103,14 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 | `recipe.blast(result, input)` | Blast-furnace-only cook |
 | `loot.block(block, list)` | Break drops for `block`. `list` is `a+b(+c…)`; every id drops once. Overrides datapack `loot/blocks/<id>.json` |
 | `loot.chest(table, list)` | Replaces the `drops` list for a named chest table (`camp_chest`, `mine_chest`, …) |
+| `loot.entity(id, list)` | Guest death drops for `id`. `list` is `a+b(+c…)`; every id drops once at the body. Cancelled by `entity_death` returning `false` |
 | `entity.register(namespace, path)` | A simple mob `namespace:path`. It stands just east of the oak stairs. The same script can register it again |
 | `entity.model(id, path)` | Blockbench `.bbmodel` for that mob (pack or mod assets) |
 | `entity.hostile(id, flag)` | Default chase/attack AI when the host Guest supports it |
 | `entity.spawn_egg(id, item)` | Creative/hotbar item that spawns this mob on use |
+| `entity.hearts(id, n)` | Max Guest hearts (`1..=40`, default 4) |
+| `entity.hurtbox(id, radius)` | Aim sphere radius in blocks (`0.2..=4.0`, default 0.9) |
+| `entity.speed(id, scale)` | Hostile chase step scale (`0.25..=4.0`, default 1.0) |
 | `entity.spawn(id, x, y, z)` / `entity.despawn(...)` | Place or remove a body. During `main` it is recorded for load; inside a hook the host places it live |
 
 `import ModAPI` is the Fabric-style entry. It lives at `C:\CODE\RoseGoldRust\builtin\std\TerraLite\ModAPI.rg` (same folder as `GUIAPI.rg` and `SettingsAPI.rg`). The old `builtin/std/TLModAPI/` path is gone.
@@ -117,7 +121,7 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 - `Register.texture` / `model` / `hardness` / `light` / `places` / `stack` / `recipe` forward to the block and item calls above.
 - `import Blocks` resolves to `builtin/std/TerraLite/Blocks.rg`. `Blocks.defineBlock(namespace, path, model, texture, seconds, glow)` registers a block, applies those fields when non-empty / positive, and returns a `Block` with a filled `BlockProperties` bag (`.id` is the registered id). `Blocks.defineBlockItem(namespace, block_path, item_path, model, texture, seconds, glow, stack)` also registers a placeable item for that block. Also `Blocks.texture` / `model` / `hardness` / `light`.
 - `import Items` resolves to `builtin/std/TerraLite/Items.rg`. `Items.defineItem(namespace, path, places, count)` registers an item, optionally places a block, optionally sets stack size (`count` 0 keeps 64), and returns an `Item` with a filled `ItemProperties` bag (`.id` is the registered id). Free `Items.places` / `stack` still forward to the host. An `Item` also has `.places(target)` / `.stack(count)` methods that update its properties and call the host with that item's id.
-- `import Entities` resolves to `builtin/std/TerraLite/Entities.rg`. `Entities.defineEntity(namespace, path, model, egg_path, hostile)` registers a mob, optional Blockbench model, optional spawn-egg item path, and hostile AI flag; returns an `Entity` with `EntityProperties`. Free `Entities.setModel` / `setHostile` / `spawnEgg` / `spawn` / `despawn` / `spawnNear` forward to the host. `spawnNear` needs `player.*` (hook only).
+- `import Entities` resolves to `builtin/std/TerraLite/Entities.rg`. `Entities.defineEntity(namespace, path, model, egg_path, hostile)` registers a mob, optional Blockbench model, optional spawn-egg item path, and hostile AI flag; returns an `Entity` with `EntityProperties`. Call `setHearts` / `setHurtbox` / `setSpeed` (or free helpers) plus `loot.entity` / `Register.entityLoot` for Guest lifecycle attrs and death drops. Free `Entities.setModel` / `setHostile` / `spawnEgg` / `spawn` / `despawn` / `spawnNear` forward to the host. `spawnNear` needs `player.*` (hook only).
 - `import BlockEntities` resolves to `builtin/std/TerraLite/BlockEntities.rg`. `BlockEntities.bind(block_id)` marks a tile block; `get` / `set` / `getInt` / `setInt` / `has` / `clear` / `openScreen` wrap the host calls (tile IO and `gui.open` need a hook).
 - `import GUIAPI` — `GUIAPI.open(screen)` / `openNamed(name)` call `gui.open` from a hook so a block entity (or other interact) can show the panel without a hotkey.
 - `Tickable` / `Interactable` on ModAPI are real traits: `onTick(n)`, and `interact` / `onUseBlock` / `onUseItem` / `onUseEntity` (false cancels). Defaults: `TickBehavior`, `UseBehavior`. Bind with `ModAPI.bindTick` / `bindUseBlock` / … or `TLMod.listenTick` / `listenUseBlock` (forwards to `events.*`). `mods/ember.rg` implements both.
