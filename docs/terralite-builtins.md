@@ -101,8 +101,8 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 | `recipe.smelt(result, input)` | Furnace cook. Blast also accepts it unless the result is food/bricks |
 | `recipe.smoke(result, input)` | Smoker-only cook |
 | `recipe.blast(result, input)` | Blast-furnace-only cook |
-| `loot.block(block, list)` | Break drops for `block`. `list` is `a+b(+c…)`; every id drops once. Overrides datapack `loot/blocks/<id>.json` |
-| `loot.chest(table, list)` | Replaces the `drops` list for a named chest table (`camp_chest`, `mine_chest`, …) |
+| `loot.block(block, list)` | Break drops for `block`. `list` is `a+b(+c…)`; every id drops once (equal weight). Overrides datapack `loot/blocks/<id>.json`. Weighted entries / `when` conditions live in datapack JSON only |
+| `loot.chest(table, list)` | Replaces the `drops` list for a named chest table (`camp_chest`, `mine_chest`, …) with equal-weight ids. Datapack `drops`/`omen` may use `{ "id", "weight"?, "when"? }` objects; ModAPI strings stay equal-weight |
 | `loot.entity(id, list)` | Guest death drops for `id`. `list` is `a+b(+c…)`; every id drops once at the body. Cancelled by `entity_death` returning `false` |
 | `entity.register(namespace, path)` | A simple mob `namespace:path`. It stands just east of the oak stairs. The same script can register it again |
 | `entity.model(id, path)` | Blockbench `.bbmodel` for that mob (pack or mod assets) |

@@ -140,12 +140,14 @@ class TLRegister {
         recipe.blast(result, input);
     }
 
-    /// Block-break loot. `list` is `a(+b…)` — every id drops once.
+    /// Block-break loot. `list` is `a(+b…)` — every id drops once (equal weight).
+    /// Weighted `{id,weight,when}` entries are datapack JSON only.
     fn blockLoot(block: String, list: String) {
         loot.block(block, list);
     }
 
-    /// Chest table override. `table` is `camp_chest` / `mine_chest` / …; `list` replaces `drops`.
+    /// Chest table override. `table` is `camp_chest` / `mine_chest` / …; `list`
+    /// replaces `drops` with equal-weight ids. Datapack tables may use weights.
     fn chestLoot(table: String, list: String) {
         loot.chest(table, list);
     }

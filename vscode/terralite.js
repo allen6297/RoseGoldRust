@@ -289,6 +289,23 @@ const MODULES = {
       ),
     },
   },
+  loot: {
+    doc: "Equal-weight string lists for mods. Weighted {id,weight,when} entries are datapack JSON only.",
+    members: {
+      block: member(
+        "loot.block(block: String, list: String)",
+        "Break drops for block. list is a+b(+c…); every id drops once. Overrides datapack loot/blocks/<id>.json."
+      ),
+      chest: member(
+        "loot.chest(table: String, list: String)",
+        "Replaces drops for a named chest table (camp_chest, mine_chest, …) with equal-weight ids. Datapack omen stays."
+      ),
+      entity: member(
+        "loot.entity(id: String, list: String)",
+        "Guest death drops. list is a+b(+c…); every id drops once at the body."
+      ),
+    },
+  },
   entity: {
     doc: "A simple mob registered from main or on_init.",
     members: {
