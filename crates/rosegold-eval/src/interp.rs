@@ -629,7 +629,8 @@ fn host_arity(module: &str, name: &str) -> Option<usize> {
                 1
             },
         ),
-        ("player", "stack" | "count") => Some(1),
+        ("player", "stack" | "count" | "take") => Some(1),
+        ("player", "give") => Some(2),
         ("player", "held" | "selected" | "present" | "x" | "y" | "z") => Some(0),
         ("item", "exists" | "hardness" | "light" | "replaces" | "max_count") => Some(1),
         ("modapi", "note" | "registry") => Some(1),
@@ -639,6 +640,8 @@ fn host_arity(module: &str, name: &str) -> Option<usize> {
         ("block_entity", "has" | "clear") => Some(3),
         ("block_entity", "get" | "get_int") => Some(4),
         ("block_entity", "set" | "set_int") => Some(5),
+        ("block_entity", "open_at") => Some(4),
+        ("block_entity", "focus_x" | "focus_y" | "focus_z") => Some(0),
         ("gui", "open") => Some(1),
         _ => None,
     }

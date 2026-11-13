@@ -66,6 +66,8 @@ These names are the ones `crates/rosegold` forwards. The game answers them in `c
 | `world.count(index)` / `player.count(index)` | Stack count. Out of range is `0` |
 | `player.held()` | Item in the selected slot, or `""` |
 | `player.selected()` | 1-based slot, or `0` when there is no player |
+| `player.take(n)` | Remove `n` from the held stack (`1..=64`). Hook only; false when short |
+| `player.give(id, n)` | Add `n` of `id` into the hotbar (`1..=64`). Hook only; false when no room |
 | `player.present()` | True when the hook was given an eye position |
 | `player.x()` / `player.y()` / `player.z()` | Eye components, or `0` |
 | `world.time_of_day()` | `0` at midnight, `0.5` at noon, `-1` when the hook has no sky |
@@ -122,14 +124,14 @@ The hotbar the server shows a hook is the last client hotbar (`set_inventory`), 
 - `import Blocks` resolves to `builtin/std/TerraLite/Blocks.rg`. `Blocks.defineBlock(namespace, path, model, texture, seconds, glow)` registers a block, applies those fields when non-empty / positive, and returns a `Block` with a filled `BlockProperties` bag (`.id` is the registered id). `Blocks.defineBlockItem(namespace, block_path, item_path, model, texture, seconds, glow, stack)` also registers a placeable item for that block. Also `Blocks.texture` / `model` / `hardness` / `light`.
 - `import Items` resolves to `builtin/std/TerraLite/Items.rg`. `Items.defineItem(namespace, path, places, count)` registers an item, optionally places a block, optionally sets stack size (`count` 0 keeps 64), and returns an `Item` with a filled `ItemProperties` bag (`.id` is the registered id). Free `Items.places` / `stack` still forward to the host. An `Item` also has `.places(target)` / `.stack(count)` methods that update its properties and call the host with that item's id.
 - `import Entities` resolves to `builtin/std/TerraLite/Entities.rg`. `Entities.defineEntity(namespace, path, model, egg_path, hostile)` registers a mob, optional Blockbench model, optional spawn-egg item path, and hostile AI flag; returns an `Entity` with `EntityProperties`. Call `setHearts` / `setHurtbox` / `setSpeed` (or free helpers) plus `loot.entity` / `Register.entityLoot` for Guest lifecycle attrs and death drops. Free `Entities.setModel` / `setHostile` / `spawnEgg` / `spawn` / `despawn` / `spawnNear` forward to the host. `spawnNear` needs `player.*` (hook only).
-- `import BlockEntities` resolves to `builtin/std/TerraLite/BlockEntities.rg`. `BlockEntities.bind(block_id)` marks a tile block; `get` / `set` / `getInt` / `setInt` / `has` / `clear` / `openScreen` wrap the host calls (tile IO and `gui.open` need a hook).
+- `import BlockEntities` resolves to `builtin/std/TerraLite/BlockEntities.rg`. `BlockEntities.bind(block_id)` marks a tile block; `get` / `set` / `getInt` / `setInt` / `has` / `clear` / `openScreen` wrap the host calls (tile IO and `gui.open` need a hook). Machine helpers: `openAt(x,y,z,screen)` remembers focus + opens GUIAPI; `focusX/Y/Z`; slot keys `in`/`fuel`/`out` (+ `_n` counts) via `slotId` / `slotCount` / `setSlot` / `deposit` / `withdraw` / `depositFocus` / `withdrawFocus`. Cook loops stay in the mod on `Tickable` — no new `events.*`.
 - `import GUIAPI` — `GUIAPI.open(screen)` / `openNamed(name)` call `gui.open` from a hook so a block entity (or other interact) can show the panel without a hotkey.
-- `Tickable` / `Interactable` on ModAPI are real traits: `onTick(n)`, and `interact` / `onUseBlock` / `onUseItem` / `onUseEntity` (false cancels). Defaults: `TickBehavior`, `UseBehavior`. Bind with `ModAPI.bindTick` / `bindUseBlock` / … or `TLMod.listenTick` / `listenUseBlock` (forwards to `events.*`). `mods/ember.rg` implements both.
+- `Tickable` / `Interactable` on ModAPI are real traits: `onTick(n)`, and `interact` / `onUseBlock` / `onUseItem` / `onUseEntity` (false cancels). Defaults: `TickBehavior`, `UseBehavior`. Bind with `ModAPI.bindTick` / `bindUseBlock` / … or `TLMod.listenTick` / `listenUseBlock` (forwards to `events.*`). `mods/ember.rg` and `mods/kiln.rg` implement both.
 - Any other kind calls `modapi.content(kind, namespace, path)`. The kind must be uppercase (`BLOCK_ENTITY`, `SCREEN`, `COMMAND`, …). The namespace and path must be lowercase.
 
 Of those stored entries, the game uses two:
 
-- `BLOCK_ENTITY` / `block_entity.bind(id)` marks a block id as a script tile. Hook-time `block_entity.get` / `set` / `get_int` / `set_int` / `has` / `clear` read and write per-cell string fields. Builtin chests stay on `Pack::is_container`; script tiles do not open an empty chest UI.
+- `BLOCK_ENTITY` / `block_entity.bind(id)` marks a block id as a script tile. Hook-time `block_entity.get` / `set` / `get_int` / `set_int` / `has` / `clear` read and write per-cell string fields. `block_entity.open_at(x,y,z,name)` opens a GUIAPI screen and stores machine focus; `focus_x` / `focus_y` / `focus_z` read it from a later press. Builtin chests stay on `Pack::is_container`; script tiles do not open an empty chest UI.
 - `SCREEN` is added to the pack's script screen list (`add_script_screen`). `GUIAPI.createScreen` still builds the drawn panel. Hook-time `gui.open(name)` / `GUIAPI.open` / `GUIAPI.openNamed` opens that panel (used from block-entity `use_block` flows).
 - `COMMAND` becomes a chat-row label in the client (`command_rows`). The command does not run.
 - `PARTICLE` picks a color (`particle_color`). It does not spawn particles.
@@ -161,6 +163,7 @@ Live demos under `C:\CODE\TerraLite\mods`:
 | File | What it calls |
 | --- | --- |
 | `mods/ember.rg` | ModAPI `Tickable`/`Interactable`, Blocks/Items/Entities/BlockEntities/GUIAPI (glow brick charge, ember wand, shade) |
+| `mods/kiln.rg` | Script machine: `BlockEntities` slot contract + `openAt` / deposit-withdraw UI + `Tickable` sand→glass cook |
 | `mods/rose-kit.rg` | `import helpers`, `block.register`, `block.texture`, `block.model`, `item.register`, `item.places`, `recipe.register`, `recipe.shapeless`, `recipe.shaped`, `entity.register`, `events.placed`, `events.entity_spawn`, `events.entity_hurt`, `events.entity_tick`, `world.set_block` |
 | `mods/k's-guide/src/mod.rg` | `import ModAPI`, `on_init`, registries for item, block, entity, block entity, item group, screen, event, command, config, resource, texture, particle |
 

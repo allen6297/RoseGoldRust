@@ -204,6 +204,14 @@ const MODULES = {
         "player.selected(): Int",
         "1-based selected slot, or 0 when there is no player."
       ),
+      take: member(
+        "player.take(n: Int): Bool",
+        "Remove n from the held stack (1..=64). Hook only. False when the stack is short."
+      ),
+      give: member(
+        "player.give(id: String, n: Int): Bool",
+        "Add n of id into the hotbar (1..=64). Hook only. False when there is no room."
+      ),
       present: member(
         "player.present(): Bool",
         "True when the hook was given an eye position. False for server break, place, and spawn."
@@ -660,6 +668,41 @@ const MODULES = {
         "BlockEntities.openScreen(name: String): Bool",
         "gui.open. False when that screen was never built."
       ),
+      openAt: member(
+        "BlockEntities.openAt(x: Int, y: Int, z: Int, name: String): Bool",
+        "Open a GUIAPI screen and remember this cell as the machine focus."
+      ),
+      focusX: member("BlockEntities.focusX(): Int", "Focused machine x, or 0."),
+      focusY: member("BlockEntities.focusY(): Int", "Focused machine y, or 0."),
+      focusZ: member("BlockEntities.focusZ(): Int", "Focused machine z, or 0."),
+      slotId: member(
+        "BlockEntities.slotId(x: Int, y: Int, z: Int, name: String): String",
+        "Machine slot id for in/fuel/out."
+      ),
+      slotCount: member(
+        "BlockEntities.slotCount(x: Int, y: Int, z: Int, name: String): Int",
+        "Machine slot count (reads name_n)."
+      ),
+      setSlot: member(
+        "BlockEntities.setSlot(x: Int, y: Int, z: Int, name: String, id: String, count: Int): Bool",
+        "Write a machine slot id and count."
+      ),
+      deposit: member(
+        "BlockEntities.deposit(x: Int, y: Int, z: Int, name: String): Bool",
+        "Move one from the held stack into that machine slot."
+      ),
+      withdraw: member(
+        "BlockEntities.withdraw(x: Int, y: Int, z: Int, name: String): Bool",
+        "Move one from that machine slot into the hotbar."
+      ),
+      depositFocus: member(
+        "BlockEntities.depositFocus(name: String): Bool",
+        "deposit into the focused machine from openAt."
+      ),
+      withdrawFocus: member(
+        "BlockEntities.withdrawFocus(name: String): Bool",
+        "withdraw from the focused machine."
+      ),
       BlockEntity: type("class BlockEntity", "block_id, plus get, set, getInt, setInt, has, clear, and openScreen."),
     },
   },
@@ -734,6 +777,13 @@ const MODULES = {
       ),
       has: member("block_entity.has(x: Int, y: Int, z: Int): Bool", "True when that cell has tile data."),
       clear: member("block_entity.clear(x: Int, y: Int, z: Int): Bool", "Drops the tile data on that cell."),
+      open_at: member(
+        "block_entity.open_at(x: Int, y: Int, z: Int, name: String): Bool",
+        "Open a GUIAPI screen and remember this cell as the machine focus for later presses."
+      ),
+      focus_x: member("block_entity.focus_x(): Int", "Focused machine x from the last open_at, or 0."),
+      focus_y: member("block_entity.focus_y(): Int", "Focused machine y from the last open_at, or 0."),
+      focus_z: member("block_entity.focus_z(): Int", "Focused machine z from the last open_at, or 0."),
     },
   },
   gui: {

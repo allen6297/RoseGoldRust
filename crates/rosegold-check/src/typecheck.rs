@@ -2022,7 +2022,8 @@ impl<'a> TypeChecker<'a> {
                 _ => miss(self),
             },
             "player" => match name {
-                "stack" | "count" => self.check_arity(&label, 1, n, line, col),
+                "stack" | "count" | "take" => self.check_arity(&label, 1, n, line, col),
+                "give" => self.check_arity(&label, 2, n, line, col),
                 "held" | "selected" | "present" | "x" | "y" | "z" => {
                     self.check_arity(&label, 0, n, line, col)
                 }
@@ -2062,6 +2063,8 @@ impl<'a> TypeChecker<'a> {
                 "has" | "clear" => self.check_arity(&label, 3, n, line, col),
                 "get" | "get_int" => self.check_arity(&label, 4, n, line, col),
                 "set" | "set_int" => self.check_arity(&label, 5, n, line, col),
+                "open_at" => self.check_arity(&label, 4, n, line, col),
+                "focus_x" | "focus_y" | "focus_z" => self.check_arity(&label, 0, n, line, col),
                 _ => miss(self),
             },
             "modapi" => match name {
@@ -4162,7 +4165,7 @@ fn host_return(module: &str, name: &str) -> String {
         "player" => match name {
             "held" | "stack" => "String".into(),
             "selected" | "count" => "Int".into(),
-            "present" => "Bool".into(),
+            "present" | "give" | "take" => "Bool".into(),
             "x" | "y" | "z" => "Float".into(),
             _ => "Void".into(),
         },
@@ -4194,8 +4197,8 @@ fn host_return(module: &str, name: &str) -> String {
         },
         "block_entity" => match name {
             "get" => "String".into(),
-            "get_int" => "Int".into(),
-            "bind" | "set" | "set_int" | "clear" | "has" => "Bool".into(),
+            "get_int" | "focus_x" | "focus_y" | "focus_z" => "Int".into(),
+            "bind" | "set" | "set_int" | "clear" | "has" | "open_at" => "Bool".into(),
             _ => "Void".into(),
         },
         "modapi" => match name {
