@@ -1,8 +1,11 @@
 //! Win32 window for `__ui`, matching the Swing host in `HostUi` when a desktop exists.
 //! Hidden windows stay invisible. `run` pumps until every native window is closed.
 
+#[cfg(windows)]
 use std::cell::RefCell;
+#[cfg(windows)]
 use std::ffi::c_void;
+#[cfg(windows)]
 use std::sync::Once;
 
 #[derive(Clone)]
@@ -52,16 +55,21 @@ pub(super) fn open(id: i64, title: &str, w: i32, h: i32, visible: bool) -> Optio
     hwnd
 }
 
+#[cfg(windows)]
 pub(super) fn destroy(hwnd: isize) {
-    if hwnd != 0 && cfg!(windows) {
+    if hwnd != 0 {
         unsafe {
             DestroyWindow(hwnd);
         }
     }
 }
 
+#[cfg(not(windows))]
+pub(super) fn destroy(_hwnd: isize) {}
+
+#[cfg(windows)]
 pub(super) fn show(hwnd: isize, visible: bool) {
-    if hwnd == 0 || !cfg!(windows) {
+    if hwnd == 0 {
         return;
     }
     unsafe {
@@ -72,8 +80,12 @@ pub(super) fn show(hwnd: isize, visible: bool) {
     }
 }
 
+#[cfg(not(windows))]
+pub(super) fn show(_hwnd: isize, _visible: bool) {}
+
+#[cfg(windows)]
 pub(super) fn set_title(hwnd: isize, title: &str) {
-    if hwnd == 0 || !cfg!(windows) {
+    if hwnd == 0 {
         return;
     }
     let wide = wide(title);
@@ -82,8 +94,12 @@ pub(super) fn set_title(hwnd: isize, title: &str) {
     }
 }
 
+#[cfg(not(windows))]
+pub(super) fn set_title(_hwnd: isize, _title: &str) {}
+
+#[cfg(windows)]
 pub(super) fn set_client_size(hwnd: isize, w: i32, h: i32) {
-    if hwnd == 0 || !cfg!(windows) {
+    if hwnd == 0 {
         return;
     }
     unsafe {
@@ -108,8 +124,12 @@ pub(super) fn set_client_size(hwnd: isize, w: i32, h: i32) {
     }
 }
 
+#[cfg(not(windows))]
+pub(super) fn set_client_size(_hwnd: isize, _w: i32, _h: i32) {}
+
+#[cfg(windows)]
 pub(super) fn present(hwnd: isize, fb: &[u32], w: i32, h: i32) {
-    if hwnd == 0 || !cfg!(windows) || w < 1 || h < 1 || fb.len() < (w as usize) * (h as usize) {
+    if hwnd == 0 || w < 1 || h < 1 || fb.len() < (w as usize) * (h as usize) {
         return;
     }
     unsafe {
@@ -117,8 +137,12 @@ pub(super) fn present(hwnd: isize, fb: &[u32], w: i32, h: i32) {
     }
 }
 
+#[cfg(not(windows))]
+pub(super) fn present(_hwnd: isize, _fb: &[u32], _w: i32, _h: i32) {}
+
+#[cfg(windows)]
 pub(super) fn set_cursor(hwnd: isize, kind: i32) {
-    if hwnd == 0 || !cfg!(windows) {
+    if hwnd == 0 {
         return;
     }
     let id = match kind {
@@ -135,10 +159,11 @@ pub(super) fn set_cursor(hwnd: isize, kind: i32) {
     }
 }
 
+#[cfg(not(windows))]
+pub(super) fn set_cursor(_hwnd: isize, _kind: i32) {}
+
+#[cfg(windows)]
 pub(super) fn pump() -> Vec<NativeEvent> {
-    if !cfg!(windows) {
-        return Vec::new();
-    }
     let mut out = Vec::new();
     unsafe {
         let mut msg = Msg::default();
@@ -149,6 +174,11 @@ pub(super) fn pump() -> Vec<NativeEvent> {
     }
     out.append(&mut EVENTS.with(|q| q.borrow_mut().drain(..).collect()));
     out
+}
+
+#[cfg(not(windows))]
+pub(super) fn pump() -> Vec<NativeEvent> {
+    Vec::new()
 }
 
 #[allow(dead_code)]
@@ -226,12 +256,17 @@ fn instance() -> isize {
     unsafe { GetModuleHandleW(std::ptr::null()) }
 }
 
+#[cfg(windows)]
 fn wide(s: &str) -> Vec<u16> {
     s.encode_utf16().chain(std::iter::once(0)).collect()
 }
 
+#[cfg(windows)]
 thread_local! {
     static EVENTS: RefCell<Vec<NativeEvent>> = const { RefCell::new(Vec::new()) };
+}
+
+thread_local! {
     static PENDING: std::cell::Cell<i64> = const { std::cell::Cell::new(0) };
 }
 
@@ -433,8 +468,10 @@ const CLASS: &[u16] = &[
     0,
 ];
 
+#[cfg(windows)]
 const WS_OVERLAPPEDWINDOW: u32 = 0x00CF0000;
 
+#[cfg(windows)]
 #[repr(C)]
 #[derive(Clone, Copy, Default)]
 struct Rect {
@@ -444,6 +481,7 @@ struct Rect {
     bottom: i32,
 }
 
+#[cfg(windows)]
 #[repr(C)]
 #[derive(Clone, Copy, Default)]
 struct Point {
@@ -451,6 +489,7 @@ struct Point {
     y: i32,
 }
 
+#[cfg(windows)]
 #[repr(C)]
 #[derive(Clone, Copy)]
 struct Msg {
@@ -462,6 +501,7 @@ struct Msg {
     pt: Point,
 }
 
+#[cfg(windows)]
 impl Default for Msg {
     fn default() -> Self {
         Self {
@@ -475,6 +515,7 @@ impl Default for Msg {
     }
 }
 
+#[cfg(windows)]
 #[repr(C)]
 struct WndClassW {
     size: u32,
@@ -491,6 +532,7 @@ struct WndClassW {
     icon_sm: isize,
 }
 
+#[cfg(windows)]
 #[repr(C)]
 #[derive(Clone, Copy, Default)]
 struct Paint {
@@ -502,6 +544,7 @@ struct Paint {
     reserved: [u8; 32],
 }
 
+#[cfg(windows)]
 #[repr(C)]
 #[derive(Clone, Copy, Default)]
 struct BitmapHeader {
@@ -518,6 +561,7 @@ struct BitmapHeader {
     clr_important: u32,
 }
 
+#[cfg(windows)]
 #[repr(C)]
 #[derive(Clone, Copy, Default)]
 struct BitmapInfo {
